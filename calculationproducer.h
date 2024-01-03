@@ -12,7 +12,7 @@ public:
     CalculationProducer();
 
     static void calculateArguments(std::vector<SaprElement*>);
-    static std::vector<std::vector<double*>> calcResults(SaprElement*, int);
+    static std::vector<std::vector<std::vector<double>>> calcResults(SaprElement *firstElement);
 
     static double* calcPoint(SaprElement *el, int i, double x);
 

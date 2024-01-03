@@ -1,4 +1,5 @@
 #include "calculationproducer.h"
+#include "Options.cpp"
 
 
 #include <QDebug>
@@ -131,27 +132,27 @@ void CalculationProducer::calcDelt()
     matrixDelt[0] = tempB[0] / tempA[0][0];
 }
 
-std::vector<std::vector<double*>> CalculationProducer::calcResults(SaprElement *firstElement, int resSize)
+std::vector<std::vector<std::vector<double>>> CalculationProducer::calcResults(SaprElement *firstElement)
 {
-    std::vector<std::vector<double*>> res;
+    std::vector<std::vector<std::vector<double>>> res;
     if (matrixDelt == nullptr) return res;
     SaprElement* el = firstElement;
 
     int i = 0;
     while (el != nullptr)
     {
-        res.push_back(std::vector<double*>());
-        res.back().push_back(new double[resSize + 1]);
-        res.back().push_back(new double[resSize + 1]);
-        res.back().push_back(new double[resSize + 1]);
-        for (int j = 0; j <= resSize; j++)
+        res.push_back(std::vector<std::vector<double>>());
+        res.back().push_back(std::vector<double>());
+        res.back().push_back(std::vector<double>());
+        res.back().push_back(std::vector<double>());
+        for (int j = 0; j < options::diagram::pointsCount; j++)
         {
-            res.back()[0][j] = (el->elasticModulus * el->square / el->length) * (matrixDelt[i + 1] - matrixDelt[i]) +
-                            (el->xQForce * el->length / 2) * (1 - 2 * (double(j) / resSize));
-            res.back()[1][j] = matrixDelt[i] + (double(j) / resSize) * (matrixDelt[i + 1] - matrixDelt[i]) +
-                               el->xQForce * el->length * el->length / (2 * el->elasticModulus * el->square) * (double(j) / resSize) *
-                                                                                                               (1 - (double(j) / resSize));
-            res.back()[2][j] = res.back()[0][j] / el->square;
+            res.back()[0].push_back((el->elasticModulus * el->square / el->length) * (matrixDelt[i + 1] - matrixDelt[i]) +
+                                    (el->xQForce * el->length / 2) * (1 - 2 * (double(j) / options::diagram::pointsCount)));
+            res.back()[1].push_back(matrixDelt[i] + (double(j) / options::diagram::pointsCount) * (matrixDelt[i + 1] - matrixDelt[i]) +
+                               el->xQForce * el->length * el->length / (2 * el->elasticModulus * el->square) * (double(j) / options::diagram::pointsCount) *
+                                                                                            (1 - (double(j) / options::diagram::pointsCount)));
+            res.back()[2].push_back(res.back()[0][j] / el->square);
         }
         i++;
         el = el->rightConnectedElement;

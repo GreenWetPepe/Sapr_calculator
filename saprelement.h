@@ -15,10 +15,12 @@ public:
     SaprElement(std::string);
 
     void draw(QPainter&, double);
-    void drawArrow(QPainter&, double, double, double, double);
-    void drawArrowHead(QPainter&, double, double, bool);
-    void drawParams(QPainter&, double);
-    void drawDiagram(QPainter&, std::vector<double*>, int, double, double**);
+    void drawForces(QPainter &painter);
+    void drawDisturbedForces(QPainter &painter);
+    void drawArrow(QPainter &painter, int stX, int stY, int endX, int endY);
+    void drawArrowHead(QPainter &painter, int x, int y, bool isDirectLeft);
+    void drawParams(QPainter &painter, int maxHeight);
+    void drawDiagram(QPainter &painter, std::vector<double> points, int maxHeight, double minVal, double maxVal, int indent);
     void zoom(double);
 
     void setLeftForce(double);
@@ -36,16 +38,6 @@ public:
     bool hasLeftSupport = false, hasRightSupport = false;
 
     SaprElement *leftConnectedElement = nullptr, *rightConnectedElement = nullptr;
-
-private:
-    static const int qForceArrowIndent = 10;
-    static const int xQForceArrowIndent = 7, yQForceArrowIndent = 5;
-    constexpr static double forceArrowIndentCoeff = 0.4;
-
-    static double sizeMultiply;
-    static double paramIndentMultiply;
-    static double diagramSizeMultiply;
-    static double diagramIndentMultiply;
 };
 
 #endif // SAPRELEMENT_H

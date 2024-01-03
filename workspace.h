@@ -17,8 +17,11 @@ public:
 
     void addElement(SaprElement*);
     void removeElement(SaprElement*);
-    SaprElement* findElement(int, int);
-    SaprElement* getById(int);
+    int getMaxHeight();
+
+    SaprElement* findElement(int x, int y);
+    SaprElement* getFirstLinkedElement();
+
     void zoomIn();
     void zoomOut();
     void moveElements(int, int);
@@ -26,7 +29,6 @@ public:
     void correctLinkedElementsPos();
     void checkForConnection(SaprElement*);
     bool checkSystemReadiness();
-    SaprElement* getFirstSystemElement();
 
     void drawElements(QPainter&);
     void drawSupports(QPainter&, int);

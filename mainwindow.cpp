@@ -1,8 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
-#include "largestnumbersmodulo.h"
-
 #include <QDebug>
 #include <QKeyEvent>
 #include <random>
@@ -74,7 +72,7 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
             }
             else if (workSpace.checkSystemReadiness())
             {
-                selectedElement = workSpace.getFirstSystemElement();
+                selectedElement = workSpace.getFirstLinkedElement();
             }
             selectedElement->isSelected = true;
             moveElementDataToSettings();
@@ -290,7 +288,7 @@ void MainWindow::on_lineEdit_editingFinished()
     auto labels = calcPointWidget->findChildren<QLabel*>();
     double val = xParam->text().toDouble();
     if (val < 0 || val > selectedElement->length) return;
-    SaprElement *firstElement = workSpace.getFirstSystemElement();
+    SaprElement *firstElement = workSpace.getFirstLinkedElement();
     int i = 0;
     while (firstElement)
     {
@@ -309,10 +307,5 @@ void MainWindow::on_lineEdit_editingFinished()
 void MainWindow::on_showTableAction_triggered()
 {
     if (!workSpace.checkSystemReadiness()) return;
-
-    largestNumbersModulo *l = new largestNumbersModulo();
-    l->elements = workSpace.elements;
-    l->fillTable();
-    l->show();
 }
 

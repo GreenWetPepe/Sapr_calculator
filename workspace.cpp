@@ -1,5 +1,6 @@
 #include "workspace.h"
 #include "qdebug.h"
+#include "Options.cpp"
 
 #include <fstream>
 #include <cmath>
@@ -72,19 +73,10 @@ void WorkSpace::drawSupports(QPainter &painter, int maxHeight)
 void WorkSpace::drawDiagram(QPainter &painter)
 {
     if (!CalculationProducer::isReady()) return;
-    int resSize = 1500;
-    double maxHeight = 0;
-    SaprElement *firstElement = nullptr;
-    for (auto el : elements)
-    {
-        if (el->leftConnectedElement == nullptr)
-        {
-            firstElement = el;
-        }
-        if (maxHeight < el->height) maxHeight = el->height;
-    }
+    SaprElement *firstElement = getFirstLinkedElement();
+    int maxHeight = getMaxHeight();
 
-    std::vector<std::vector<double*>> res = CalculationProducer::calcResults(firstElement, resSize);
+    std::vector<std::vector<std::vector<double>>> res = CalculationProducer::calcResults(firstElement);
 
     double** borderVals = new double*[3];
     borderVals[0] = new double[2];
@@ -97,7 +89,7 @@ void WorkSpace::drawDiagram(QPainter &painter)
     {
         for (int i = 0; i < 3; i++)
         {
-            for (int j = 0; j < resSize; j++)
+            for (int j = 0; j < options::diagram::pointsCount; j++)
             {
                 if (borderVals[i][0] > calc[i][j]) borderVals[i][0] = calc[i][j];
                 if (borderVals[i][1] < calc[i][j]) borderVals[i][1] = calc[i][j];
@@ -106,10 +98,23 @@ void WorkSpace::drawDiagram(QPainter &painter)
     }
 
     SaprElement *el = firstElement;
+
+    painter.drawText(QPoint(el->x - 25, el->y + el->height / 2 + maxHeight * options::diagram::nXIndent -
+                                            (0 - borderVals[0][0]) / (borderVals[0][1] - borderVals[0][0]) *
+                                            maxHeight * options::diagram::diagramSizeMultiply), QString("Nx"));
+    painter.drawText(QPoint(el->x - 25, el->y + el->height / 2 + maxHeight * options::diagram::uXIndent -
+                                            (0 - borderVals[1][0]) / (borderVals[1][1] - borderVals[1][0]) *
+                                            maxHeight * options::diagram::diagramSizeMultiply), QString("Ux"));
+    painter.drawText(QPoint(el->x - 25, el->y + el->height / 2 + maxHeight * options::diagram::sXIndent -
+                                            (0 - borderVals[2][0]) / (borderVals[2][1] - borderVals[2][0]) *
+                                            maxHeight * options::diagram::diagramSizeMultiply), QString("Sx"));
     int i = 0;
     while (el != nullptr)
     {
-        el->drawDiagram(painter, res[i], resSize, maxHeight, borderVals);
+
+        el->drawDiagram(painter, res[i][0], maxHeight, borderVals[0][0], borderVals[0][1], options::diagram::nXIndent);
+        el->drawDiagram(painter, res[i][1], maxHeight, borderVals[1][0], borderVals[1][1], options::diagram::uXIndent);
+        el->drawDiagram(painter, res[i][2], maxHeight, borderVals[2][0], borderVals[2][1], options::diagram::sXIndent);
         el = el->rightConnectedElement;
         i++;
     }
@@ -125,6 +130,18 @@ SaprElement* WorkSpace::findElement(int x, int y)
         }
     }
 
+    return nullptr;
+}
+
+SaprElement* WorkSpace::getFirstLinkedElement()
+{
+    for (auto el : elements)
+    {
+        if (!el->leftConnectedElement)
+        {
+            return el;
+        }
+    }
     return nullptr;
 }
 
@@ -147,6 +164,16 @@ void WorkSpace::removeElement(SaprElement *element)
     }
     autoSizeElements();
     dropCalc();
+}
+
+int WorkSpace::getMaxHeight()
+{
+    int maxHeight = 0;
+    for (auto el : elements)
+    {
+        if (maxHeight < el->height) maxHeight = el->height;
+    }
+    return maxHeight;
 }
 
 void WorkSpace::checkForConnection(SaprElement *element)
@@ -191,7 +218,7 @@ bool WorkSpace::checkSystemReadiness()
 {
     int supportsCount = 0, linkedElementsCount = 0;
 
-    SaprElement *firstElement = getFirstSystemElement();
+    SaprElement *firstElement = getFirstLinkedElement();
     while(firstElement)
     {
         if (firstElement->hasLeftSupport) supportsCount++;
@@ -202,16 +229,6 @@ bool WorkSpace::checkSystemReadiness()
 
     if (supportsCount == 0 || supportsCount > 2 || linkedElementsCount != elements.size()) return false;
     return true;
-}
-
-SaprElement* WorkSpace::getFirstSystemElement()
-{
-    SaprElement *firstElement;
-
-    for (auto el : elements)
-    {
-        if (!el->leftConnectedElement) return el;
-    }
 }
 
 void WorkSpace::calc()

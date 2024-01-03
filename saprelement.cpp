@@ -1,11 +1,7 @@
 #include "saprelement.h"
+#include "Options.cpp"
 
 #include <QDebug>
-
-double SaprElement::sizeMultiply = 1;
-double SaprElement::paramIndentMultiply = 0.7;
-double SaprElement::diagramSizeMultiply = 1.2;
-double SaprElement::diagramIndentMultiply = 0.45;
 
 SaprElement::SaprElement()
 {
@@ -65,68 +61,78 @@ SaprElement::SaprElement(double length, double square, double elasticModulus, do
 
 void SaprElement::draw(QPainter &painter, double maxHeight)
 {
-    if (isSelected)
-    {
-        painter.setPen(Qt::cyan);
-    }
+    if (isSelected) painter.setPen(Qt::cyan);
 
     painter.drawRect(QRect(x, y, width, height));
     if (maxHeight > 0) drawParams(painter, maxHeight);
 
-    if (isSelected) painter.setPen(QPen(Qt::cyan, 3));
-    else painter.setPen(QPen(Qt::black, 3));
+    drawForces(painter);
+    drawDisturbedForces(painter);
+
+    painter.setPen(Qt::black);
+}
+
+void SaprElement::drawForces(QPainter &painter)
+{
     if (xLeftForce != 0)
     {
         if (xLeftForce > 0)
         {
-            drawArrow(painter, x, y + height / 2, x + width * forceArrowIndentCoeff, y + height / 2);
-            painter.drawText(QPoint(x + width * forceArrowIndentCoeff / 2, y + height / 2 - yQForceArrowIndent), QString::number(xLeftForce) + "F");
+            drawArrow(painter, x, y + height / 2, x + width * options::saprElement::forceArrowIndentCoeff, y + height / 2);
+            painter.drawText(QPoint(x + width * options::saprElement::forceArrowIndentCoeff / 2, y + height / 2 -
+                                                options::saprElement::yQForceArrowIndent), QString::number(abs(xLeftForce)) + "F");
         }
         else if (xLeftForce < 0 && leftConnectedElement == nullptr)
         {
-            drawArrow(painter, x, y + height / 2, x - width * forceArrowIndentCoeff, y + height / 2);
-            painter.drawText(QPoint(x - width * forceArrowIndentCoeff / 2, y + height / 2 - yQForceArrowIndent), QString::number(xLeftForce) + "F");
+            drawArrow(painter, x, y + height / 2, x - width * options::saprElement::forceArrowIndentCoeff, y + height / 2);
+            painter.drawText(QPoint(x - width * options::saprElement::forceArrowIndentCoeff / 2, y + height / 2 -
+                                                options::saprElement::yQForceArrowIndent), QString::number(abs(xLeftForce)) + "F");
         }
     }
     if (xRightForce != 0)
     {
         if (xRightForce > 0 && rightConnectedElement == nullptr)
         {
-            drawArrow(painter, x + width, y + height / 2, x + width * (1.0 + forceArrowIndentCoeff), y + height / 2);
-            painter.drawText(QPoint(x + width + width * forceArrowIndentCoeff / 2, y + height / 2 - yQForceArrowIndent), QString::number(xRightForce) + "F");
+            drawArrow(painter, x + width, y + height / 2, x + width * (1.0 + options::saprElement::forceArrowIndentCoeff), y + height / 2);
+            painter.drawText(QPoint(x + width + width * options::saprElement::forceArrowIndentCoeff / 2, y + height / 2 -
+                                                        options::saprElement::yQForceArrowIndent), QString::number(abs(xRightForce)) + "F");
         }
         else if (xRightForce < 0)
         {
-            drawArrow(painter, x + width, y + height / 2, x + width * (1.0 - forceArrowIndentCoeff), y + height / 2);
-            painter.drawText(QPoint(x + width - width * forceArrowIndentCoeff / 2, y + height / 2 - yQForceArrowIndent), QString::number(xRightForce) + "F");
+            drawArrow(painter, x + width, y + height / 2, x + width * (1.0 - options::saprElement::forceArrowIndentCoeff), y + height / 2);
+            painter.drawText(QPoint(x + width - width * options::saprElement::forceArrowIndentCoeff / 2, y + height / 2 -
+                                                        options::saprElement::yQForceArrowIndent), QString::number(abs(xRightForce)) + "F");
         }
     }
-    if (isSelected) painter.setPen(QPen(Qt::cyan, 1));
-    else painter.setPen(QPen(Qt::black, 1));
+}
+
+void SaprElement::drawDisturbedForces(QPainter &painter)
+{
     if(xQForce != 0)
     {
         painter.drawLine(x, y + height / 2, x + width, y + height / 2);
         if (xQForce > 0)
         {
-            for (int i = 0; i < (width / qForceArrowIndent) - 1; i++)
+            for (int i = 0; i < (width / options::saprElement::qForceArrowIndent) - 1; i++)
             {
-                drawArrow(painter, x + qForceArrowIndent * i, y + height / 2, x + qForceArrowIndent * (i + 1), y + height / 2);
+                drawArrow(painter, x + options::saprElement::qForceArrowIndent * i, y + height / 2, x +
+                                                                    options::saprElement::qForceArrowIndent * (i + 1), y + height / 2);
             }
         }
         else
         {
-            for (int i = 0; i < (width / qForceArrowIndent) - 1; i++)
+            for (int i = 0; i < (width / options::saprElement::qForceArrowIndent) - 1; i++)
             {
-                drawArrow(painter, x + width - qForceArrowIndent * i, y + height / 2, x + width - qForceArrowIndent * (i + 1), y + height / 2);
+                drawArrow(painter, x + width - options::saprElement::qForceArrowIndent * i, y + height / 2, x + width -
+                                                options::saprElement::qForceArrowIndent * (i + 1), y + height / 2);
             }
         }
-        painter.drawText(QPoint(x + width / 2 - 3, y + height / 2 - yQForceArrowIndent), QString::number(xQForce) + "q");
+        painter.drawText(QPoint(x + width / 2 - 3, y + height / 2 - options::saprElement::yQForceArrowIndent),
+                         QString::number(abs(xQForce)) + "q");
     }
-
-    if (isSelected) painter.setPen(Qt::black);
 }
 
-void SaprElement::drawArrow(QPainter &painter, double stX, double stY, double endX, double endY)
+void SaprElement::drawArrow(QPainter &painter, int stX, int stY, int endX, int endY)
 {
     painter.drawLine(stX, stY, endX, endY);
     bool direct = false;
@@ -134,86 +140,51 @@ void SaprElement::drawArrow(QPainter &painter, double stX, double stY, double en
     drawArrowHead(painter, endX, endY, direct);
 }
 
-void SaprElement::drawArrowHead(QPainter &painter, double x, double y, bool isDirectLeft)
+void SaprElement::drawArrowHead(QPainter &painter, int x, int y, bool isDirectLeft)
 {
     int mult = isDirectLeft ? 1 : -1;
-    painter.drawLine(x + xQForceArrowIndent * mult, y + yQForceArrowIndent, x, y);
-    painter.drawLine(x + xQForceArrowIndent * mult, y - yQForceArrowIndent, x, y);
+    painter.drawLine(x + options::saprElement::xQForceArrowIndent * mult, y + options::saprElement::yQForceArrowIndent, x, y);
+    painter.drawLine(x + options::saprElement::xQForceArrowIndent * mult, y - options::saprElement::yQForceArrowIndent, x, y);
 }
 
-void SaprElement::drawParams(QPainter &painter, double maxHeight)
+void SaprElement::drawParams(QPainter &painter, int maxHeight)
 {
-    painter.drawLine(x, y + height / 2, x, y + height / 2 + maxHeight * paramIndentMultiply);
-    painter.drawLine(x + width, y + height / 2, x + width, y + height / 2 + maxHeight * paramIndentMultiply);
-    drawArrowHead(painter, x, y + height / 2 + maxHeight * paramIndentMultiply, true);
-    drawArrowHead(painter, x + width, y + height / 2 + maxHeight * paramIndentMultiply, false);
-    painter.drawLine(x, y + height / 2 + maxHeight * paramIndentMultiply, x + width, y + height / 2 + maxHeight * paramIndentMultiply);
-    painter.drawText(QPoint(x + width / 2 - 10, y + height / 2 + maxHeight * paramIndentMultiply + 15), QString::number(length) + "L"); // DRAW TEXT PARAMS
+    painter.drawLine(x, y + height / 2, x, y + height / 2 + maxHeight * options::saprElement::paramIndentMultiply);
+    painter.drawLine(x + width, y + height / 2, x + width, y + height / 2 + maxHeight * options::saprElement::paramIndentMultiply);
+    drawArrowHead(painter, x, y + height / 2 + maxHeight * options::saprElement::paramIndentMultiply, true);
+    drawArrowHead(painter, x + width, y + height / 2 + maxHeight * options::saprElement::paramIndentMultiply, false);
+    painter.drawLine(x, y + height / 2 + maxHeight * options::saprElement::paramIndentMultiply, x + width, y + height / 2 + maxHeight * options::saprElement::paramIndentMultiply);
+    painter.drawText(QPoint(x + width / 2 - 10, y + height / 2 + maxHeight * options::saprElement::paramIndentMultiply + 15), QString::number(length) + "L"); // DRAW TEXT PARAMS
     painter.drawText(QPoint(x + width / 4, y - 10), QString::number(elasticModulus) + "E   " + QString::number(square) + "A");
 }
 
-void SaprElement::drawDiagram(QPainter &painter, std::vector<double*> points, int size, double maxHeight, double** borderVals)
+void SaprElement::drawDiagram(QPainter &painter, std::vector<double> points, int maxHeight, double minVal, double maxVal, int indent)
 {
-    double nMinVal = borderVals[0][0], nPointDelt = borderVals[0][1] - borderVals[0][0];
-    double uMinVal = borderVals[1][0], uPointDelt = borderVals[1][1] - borderVals[1][0];
-    double sMinVal = borderVals[1][0], sPointDelt = borderVals[2][1] - borderVals[2][0];
-    if (nPointDelt == 0) nPointDelt = 1;
-    if (uPointDelt == 0) uPointDelt = 1;
-    if (sPointDelt == 0) sPointDelt = 1;
+    double pointsDelt = maxVal - minVal;
+    if (pointsDelt == 0) pointsDelt = 1;
 
-    painter.drawLine(x, y + height / 2, x, y + height / 2 + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)));
-    painter.drawLine(x + width, y + height / 2, x + width, y + height / 2 + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)));
+    painter.drawLine(x, y + height / 2 + maxHeight, x, y + height / 2 + maxHeight * indent);
+    painter.drawLine(x + width, y + height / 2 + maxHeight, x + width, y + height / 2 + maxHeight * indent);
 
     // DRAW ZERO LINES
-    painter.drawLine(x, y + height / 2 + maxHeight * (paramIndentMultiply + diagramIndentMultiply + diagramSizeMultiply) - (0 - nMinVal) / nPointDelt * maxHeight * diagramSizeMultiply,
-                     x + width, y + height / 2 + maxHeight * (paramIndentMultiply + diagramIndentMultiply + diagramSizeMultiply) - (0 - nMinVal) / nPointDelt * maxHeight * diagramSizeMultiply);
-    painter.drawLine(x, y + height / 2 + maxHeight * (paramIndentMultiply + 2 * diagramIndentMultiply + 2 * diagramSizeMultiply) - (0 - uMinVal) / uPointDelt * maxHeight * diagramSizeMultiply,
-                     x + width, y + height / 2 + maxHeight * (paramIndentMultiply + 2 * diagramIndentMultiply + 2 * diagramSizeMultiply) - (0 - uMinVal) / uPointDelt * maxHeight * diagramSizeMultiply);
-    painter.drawLine(x, y + height / 2 + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)) - (0 - sMinVal) / sPointDelt * maxHeight * diagramSizeMultiply,
-                     x + width, y + height / 2 + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)) - (0 - sMinVal) / sPointDelt * maxHeight * diagramSizeMultiply);
-
-    // DRAW GRAPH LABELS
-    if (!leftConnectedElement)
-    {
-        painter.drawText(QPoint(x - 25, y + height / 2 + maxHeight * (paramIndentMultiply + diagramIndentMultiply + diagramSizeMultiply) -
-                                            (0 - nMinVal) / nPointDelt * maxHeight * diagramSizeMultiply), QString("Nx"));
-        painter.drawText(QPoint(x - 25, y + height / 2 + maxHeight * (paramIndentMultiply + 2 * diagramIndentMultiply + 2 * diagramSizeMultiply) -
-                                            (0 - uMinVal) / uPointDelt * maxHeight * diagramSizeMultiply), QString("Ux"));
-        painter.drawText(QPoint(x - 25, y + height / 2 + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)) -
-                                            (0 - sMinVal) / sPointDelt * maxHeight * diagramSizeMultiply), QString("Sx"));
-    }
+    painter.drawLine(x, y + height / 2 + maxHeight * indent - (0 - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply,
+                     x + width, y + height / 2 + maxHeight * indent - (0 - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply);
 
 //    painter.setPen(Qt::green); // Draw diagrams border
-//    painter.drawRect(x, y + height / 2 + maxHeight * (paramIndentMultiply + diagramIndentMultiply), width, maxHeight * diagramSizeMultiply);
-//    painter.setPen(Qt::yellow);
-//    painter.drawRect(x, y + height / 2 + maxHeight * (paramIndentMultiply + 2 * diagramIndentMultiply + diagramSizeMultiply), width, maxHeight * diagramSizeMultiply);
+//    painter.drawRect(x, y + height / 2 + maxHeight * indent, width, maxHeight * diagramSizeMultiply);
 //    painter.setPen(Qt::black);
 
-    for (int i = 0; i <= size; i++)
+    for (int i = 0; i <= points.size(); i++)
     {
-        painter.drawPoint(x + width / size * i, y + height / 2 + maxHeight * (paramIndentMultiply + diagramIndentMultiply + diagramSizeMultiply) -
-                                                    (points[0][i] - nMinVal) / nPointDelt * maxHeight * diagramSizeMultiply);
-        painter.drawPoint(x + width / size * i, y + height / 2 + maxHeight * (paramIndentMultiply + 2 * (diagramIndentMultiply + diagramSizeMultiply)) -
-                                                    (points[1][i] - uMinVal) / uPointDelt * maxHeight * diagramSizeMultiply);
-        painter.drawPoint(x + width / size * i, y + height / 2 + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)) -
-                                                    (points[2][i] - sMinVal) / sPointDelt * maxHeight * diagramSizeMultiply);
+        painter.drawPoint(x + width / points.size() * i, y + height / 2 + maxHeight * indent - (points[i] - minVal) /
+                                                                            pointsDelt * maxHeight * options::diagram::diagramSizeMultiply);
 
         if (i % 60 == 0)
         {
-            painter.drawLine(x + width / size * i, y + height / 2 + maxHeight * (paramIndentMultiply + diagramIndentMultiply + diagramSizeMultiply) -
-                                                       (points[0][i] - nMinVal) / nPointDelt * maxHeight * diagramSizeMultiply,
-                             x + width / size * i, y + height / 2 + maxHeight * (paramIndentMultiply + diagramIndentMultiply + diagramSizeMultiply) -
-                                                        (0 - nMinVal) / nPointDelt * maxHeight * diagramSizeMultiply);
-
-            painter.drawLine(x + width / size * i, y + height / 2 + maxHeight * (paramIndentMultiply + 2 * (diagramIndentMultiply + diagramSizeMultiply)) -
-                                                       (points[1][i] - uMinVal) / uPointDelt * maxHeight * diagramSizeMultiply,
-                             x + width / size * i, y + height / 2 + maxHeight * (paramIndentMultiply + 2 * diagramIndentMultiply + 2 * diagramSizeMultiply) -
-                                                       (0 - uMinVal) / uPointDelt * maxHeight * diagramSizeMultiply);
-
-            painter.drawLine(x + width / size * i, y + height / 2 + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)) -
-                                                       (points[2][i] - sMinVal) / sPointDelt * maxHeight * diagramSizeMultiply,
-                             x + width / size * i, y + height / 2 + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)) -
-                                 (0 - sMinVal) / sPointDelt * maxHeight * diagramSizeMultiply);
+            painter.drawLine(x + width / points.size() * i, y + height / 2 + maxHeight * indent -
+                                                       (points[i] - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply,
+                             x + width / points.size() * i, y + height / 2 + maxHeight * indent -
+                                                        (0 - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply);
         }
     }
 
@@ -221,29 +192,13 @@ void SaprElement::drawDiagram(QPainter &painter, std::vector<double*> points, in
     QFont font;
     QFontMetrics fM(font);
 
-    double yIndentMult = points[0][0] < 0 ? 2.2 : -1;
-    painter.drawText(QPoint(x + 2, y + height / 2 + (6 * yIndentMult) + maxHeight * (paramIndentMultiply + diagramIndentMultiply + diagramSizeMultiply) -
-                                       (points[0][0] - nMinVal) / nPointDelt * maxHeight * diagramSizeMultiply), doubleToQString(points[0][0]));
-    int indent = fM.horizontalAdvance(doubleToQString(points[0][size]));
-    yIndentMult = points[0][size] < 0 ? 2.2 : -1;
-    painter.drawText(QPoint(x + width - 2 - indent, y + height / 2 + (6 * yIndentMult) + maxHeight * (paramIndentMultiply + diagramIndentMultiply + diagramSizeMultiply) -
-                                                (points[0][size] - nMinVal) / nPointDelt * maxHeight * diagramSizeMultiply), doubleToQString(points[0][size]));
-
-    yIndentMult = points[1][0] < 0 ? 2.2 : -1;
-    painter.drawText(QPoint(x + 2, y + height / 2 + (6 * yIndentMult) + maxHeight * (paramIndentMultiply + 2 * diagramIndentMultiply + 2 * diagramSizeMultiply) -
-                                       (points[1][0] - uMinVal) / uPointDelt * maxHeight * diagramSizeMultiply), doubleToQString(points[1][0]));
-    indent = fM.horizontalAdvance(doubleToQString(points[1][size]));
-    yIndentMult = points[1][size] < 0 ? 2.2 : -1;
-    painter.drawText(QPoint(x + width - 2 - indent, y + height / 2 + (6 * yIndentMult) + maxHeight * (paramIndentMultiply + 2 * diagramIndentMultiply + 2 * diagramSizeMultiply) -
-                                                (points[1][size] - uMinVal) / uPointDelt * maxHeight * diagramSizeMultiply), doubleToQString(points[1][size]));
-
-    yIndentMult = points[2][0] < 0 ? 2.2 : -1;
-    painter.drawText(QPoint(x + 2, y + height / 2 + (6 * yIndentMult) + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)) -
-                                       (points[2][0] - sMinVal) / sPointDelt * maxHeight * diagramSizeMultiply), doubleToQString(points[2][0]));
-    indent = fM.horizontalAdvance(doubleToQString(points[2][size]));
-    yIndentMult = points[2][size] < 0 ? 2.2 : -1;
-    painter.drawText(QPoint(x + width - 2 - indent, y + height / 2 + (6 * yIndentMult) + maxHeight * (paramIndentMultiply + 3 * (diagramIndentMultiply + diagramSizeMultiply)) -
-                                                        (points[2][size] - sMinVal) / sPointDelt * maxHeight * diagramSizeMultiply), doubleToQString(points[2][size]));
+    double yIndentMult = points[0] < 0 ? 2.2 : -1;
+    painter.drawText(QPoint(x + 2, y + height / 2 + (6 * yIndentMult) + maxHeight * indent -
+                                       (points[0] - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply), doubleToQString(points[0]));
+    int textIndent = fM.horizontalAdvance(doubleToQString(points.back()));
+    yIndentMult = points.back() < 0 ? 2.2 : -1;
+    painter.drawText(QPoint(x + width - 2 - textIndent, y + height / 2 + (6 * yIndentMult) + maxHeight * indent -
+                                        (points.back() - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply), doubleToQString(points.back()));
 
     painter.setPen(Qt::black);
 }
@@ -252,7 +207,6 @@ void SaprElement::zoom(double multiply)
 {
     width *= multiply;
     height *= multiply;
-    sizeMultiply *= multiply;
 }
 
 void SaprElement::setLeftForce(double force)

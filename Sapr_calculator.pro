@@ -9,7 +9,7 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    largestnumbersmodulo.cpp \
+    Options.cpp \
     main.cpp \
     mainwindow.cpp \
     calculationproducer.cpp \
@@ -19,7 +19,6 @@ SOURCES += \
     workspace.cpp
 
 HEADERS += \
-    largestnumbersmodulo.h \
     mainwindow.h \
     calculationproducer.h \
     filehandler.h \
@@ -28,7 +27,6 @@ HEADERS += \
     workspace.h
 
 FORMS += \
-    largestnumbersmodulo.ui \
     mainwindow.ui
 
 # Default rules for deployment.
