@@ -25,4 +25,10 @@ namespace options
         static int pointsCount = 1500;
     }
 
+    namespace previewProject
+    {
+        static const int width = 50;
+        static const int height = 50;
+    }
+
 }

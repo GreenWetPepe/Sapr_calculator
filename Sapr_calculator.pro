@@ -11,23 +11,32 @@ CONFIG += c++17
 SOURCES += \
     Options.cpp \
     main.cpp \
-    mainwindow.cpp \
     calculationproducer.cpp \
     filehandler.cpp \
+    mainwindow.cpp \
+    menuwidget.cpp \
+    projectwidget.cpp \
     renderer.cpp \
     saprelement.cpp \
-    workspace.cpp
+    workspace.cpp \
+    workspacewidget.cpp
 
 HEADERS += \
-    mainwindow.h \
     calculationproducer.h \
     filehandler.h \
+    mainwindow.h \
+    menuwidget.h \
+    projectwidget.h \
     renderer.h \
     saprelement.h \
-    workspace.h
+    workspace.h \
+    workspacewidget.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    menuwidget.ui \
+    projectwidget.ui \
+    workspacewidget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

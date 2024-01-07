@@ -8,17 +8,6 @@ SaprElement::SaprElement()
 
 }
 
-SaprElement::SaprElement(int x, int y, double width, double height)
-{
-    this->x = x;
-    this->y = y;
-    this->width = width;
-    this->height = height;
-    xRightForce = 0;
-    xLeftForce = 0;
-    xQForce = 0;
-}
-
 SaprElement::SaprElement(const SaprElement &el)
 {
     x = el.x;
@@ -33,17 +22,6 @@ SaprElement::SaprElement(const SaprElement &el)
     xLeftForce = el.xLeftForce;
     xQForce = el.xQForce;
     isSelected = el.isSelected;
-}
-
-SaprElement::SaprElement(double length, double square, double elasticModulus, double permissibleStress, double xLeftForce, double xRightForce, double xQForce)
-{
-    this->length = length;
-    this->square = square;
-    this->elasticModulus = elasticModulus;
-    this->permissibleStress = permissibleStress;
-    this->xLeftForce = xLeftForce;
-    this->xRightForce = xRightForce;
-    this->xQForce = xQForce;
 }
 
 SaprElement::SaprElement(double length, double square, double elasticModulus, double permissibleStress, double xLeftForce, double xRightForce, double xQForce, bool hasLeftSup, bool hasRightSup)
@@ -163,8 +141,10 @@ void SaprElement::drawDiagram(QPainter &painter, std::vector<double> points, int
     double pointsDelt = maxVal - minVal;
     if (pointsDelt == 0) pointsDelt = 1;
 
-    painter.drawLine(x, y + height / 2 + maxHeight, x, y + height / 2 + maxHeight * indent);
-    painter.drawLine(x + width, y + height / 2 + maxHeight, x + width, y + height / 2 + maxHeight * indent);
+    painter.drawLine(x, y + height / 2 + maxHeight * options::saprElement::paramIndentMultiply,
+                     x, y + height / 2 + maxHeight * indent);
+    painter.drawLine(x + width, y + height / 2 + maxHeight * options::saprElement::paramIndentMultiply,
+                     x + width, y + height / 2 + maxHeight * indent);
 
     // DRAW ZERO LINES
     painter.drawLine(x, y + height / 2 + maxHeight * indent - (0 - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply,

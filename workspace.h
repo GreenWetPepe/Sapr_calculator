@@ -15,8 +15,8 @@ public:
     WorkSpace(std::string);
 //    ~WorkSpace();
 
-    void addElement(SaprElement*);
-    void removeElement(SaprElement*);
+    void addElement(SaprElement *element);
+    void removeElement(SaprElement *element);
     int getMaxHeight();
 
     SaprElement* findElement(int x, int y);
@@ -24,22 +24,22 @@ public:
 
     void zoomIn();
     void zoomOut();
-    void moveElements(int, int);
+    void moveElements(int deltX, int deltY);
     void autoSizeElements();
     void correctLinkedElementsPos();
-    void checkForConnection(SaprElement*);
+    void checkForConnection(SaprElement *element);
     bool checkSystemReadiness();
 
-    void drawElements(QPainter&);
-    void drawSupports(QPainter&, int);
-    void drawDiagram(QPainter&);
+    void drawElements(QPainter &painter);
+    void drawSupports(QPainter &painter, int maxHeight);
+    void drawDiagram(QPainter &painter);
 
 
     void calc();
     void dropCalc();
 
 
-    void setWindowSize(int, int);
+    void setWindowSize(int width, int height);
 
     std::vector<SaprElement*> elements;
 

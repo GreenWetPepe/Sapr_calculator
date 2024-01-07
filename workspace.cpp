@@ -159,6 +159,7 @@ void WorkSpace::removeElement(SaprElement *element)
         {
             if (elements[i]->leftConnectedElement != nullptr) elements[i]->leftConnectedElement->rightConnectedElement = nullptr;
             if (elements[i]->rightConnectedElement != nullptr) elements[i]->rightConnectedElement->leftConnectedElement = nullptr;
+            delete elements[i];
             elements.erase(elements.begin() + i);
         }
     }

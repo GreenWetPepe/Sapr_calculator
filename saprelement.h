@@ -8,27 +8,24 @@ class SaprElement
 {
 public:
     SaprElement();
-    SaprElement(int, int, double width = 50, double height = 50);
-    SaprElement(double, double, double, double, double, double, double);
-    SaprElement(double, double, double, double, double, double, double, bool, bool);
-    SaprElement(const SaprElement&);
-    SaprElement(std::string);
+    SaprElement(double length, double square, double elasticModulus, double permissibleStress, double xLeftForce, double xRightForce, double xQForce, bool hasLeftSup, bool hasRightSup);
+    SaprElement(const SaprElement &el);
 
-    void draw(QPainter&, double);
+    void draw(QPainter &painter, double maxHeight);
     void drawForces(QPainter &painter);
     void drawDisturbedForces(QPainter &painter);
     void drawArrow(QPainter &painter, int stX, int stY, int endX, int endY);
     void drawArrowHead(QPainter &painter, int x, int y, bool isDirectLeft);
     void drawParams(QPainter &painter, int maxHeight);
     void drawDiagram(QPainter &painter, std::vector<double> points, int maxHeight, double minVal, double maxVal, int indent);
-    void zoom(double);
+    void zoom(double multiply);
 
-    void setLeftForce(double);
-    void setRightForce(double);
-    void setRightConnection(SaprElement*);
-    void setLeftConnection(SaprElement*);
+    void setLeftForce(double force);
+    void setRightForce(double force);
+    void setRightConnection(SaprElement *element);
+    void setLeftConnection(SaprElement *element);
 
-    QString doubleToQString(double);
+    QString doubleToQString(double num);
 
     int x = 100, y = 100;
     double width = 100, height = 100;

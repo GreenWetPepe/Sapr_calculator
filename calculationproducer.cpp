@@ -130,6 +130,13 @@ void CalculationProducer::calcDelt()
         }
     }
     matrixDelt[0] = tempB[0] / tempA[0][0];
+
+    for (int i = 0; i < size; i++)
+    {
+        delete[] tempA[i];
+    }
+    delete[] tempA;
+    delete[] tempB;
 }
 
 std::vector<std::vector<std::vector<double>>> CalculationProducer::calcResults(SaprElement *firstElement)
