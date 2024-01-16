@@ -186,60 +186,6 @@ void ProjectWidget::setSelectedElementsParameters(SaprElementData data)
     emit linkSelectedElementsDataWithWidget(selectedElements);
 }
 
-//void ProjectWidget::moveElementDataToSettings()
-//{
-//    auto settings = findChildren<QLineEdit*>();
-//    auto supSettings = findChildren<QCheckBox*>();
-//    settings[0]->setText(QString::number(selectedElement->length));
-//    settings[1]->setText(QString::number(selectedElement->square));
-//    settings[2]->setText(QString::number(selectedElement->elasticModulus));
-//    settings[3]->setText(QString::number(selectedElement->permissibleStress));
-//    settings[4]->setText(QString::number(selectedElement->xLeftForce));
-//    settings[5]->setText(QString::number(selectedElement->xRightForce));
-//    settings[6]->setText(QString::number(selectedElement->xQForce));
-//    supSettings[0]->setChecked(selectedElement->hasRightSupport);
-//    supSettings[1]->setChecked(selectedElement->hasLeftSupport);
-//}
-
-//void ProjectWidget::moveElementDataToCalcPoint()
-//{
-//    auto xParam = calcPointWidget->findChild<QLineEdit*>();
-//    auto labels = calcPointWidget->findChildren<QLabel*>();
-//    labels[0]->setText(QString("sX = "));
-//    labels[1]->setText(QString("uX = "));
-//    labels[2]->setText(QString("nX = "));
-//    labels[3]->setText((QString("Введите длину от 0 до ") + QString::number(selectedElement->length)));
-//}
-
-
-//void ProjectWidget::on_setData_clicked()
-//{
-//    auto settings = settingsWidget->findChildren<QLineEdit*>();
-//    auto supSettings = settingsWidget->findChildren<QCheckBox*>();
-//    if (selectedElement == nullptr) return;
-//    try
-//    {
-//        if (settings[0]->text().toDouble() > 0) selectedElement->length = settings[0]->text().toDouble();
-//        if (settings[1]->text().toDouble() > 0) selectedElement->square = settings[1]->text().toDouble();
-//        if (settings[2]->text().toDouble() > 0) selectedElement->elasticModulus = settings[2]->text().toDouble();
-//        if (settings[3]->text().toDouble() > 0) selectedElement->permissibleStress = settings[3]->text().toDouble();
-//        selectedElement->xLeftForce = settings[4]->text().toDouble();
-//        if (selectedElement->leftConnectedElement != nullptr) selectedElement->leftConnectedElement->xRightForce = selectedElement->xLeftForce;
-//        selectedElement->xRightForce = settings[5]->text().toDouble();
-//        if (selectedElement->rightConnectedElement != nullptr) selectedElement->rightConnectedElement->xLeftForce = selectedElement->xRightForce;
-//        selectedElement->xQForce = settings[6]->text().toDouble();
-//        if (selectedElement->rightConnectedElement == nullptr) selectedElement->hasRightSupport = supSettings[0]->isChecked();
-//        if (selectedElement->leftConnectedElement == nullptr) selectedElement->hasLeftSupport = supSettings[1]->isChecked();
-//        workSpace.autoSizeElements();
-//        workSpace.dropCalc();
-//        update();
-//    } catch (...)
-//    {
-
-//    }
-//}
-
-
 //void ProjectWidget::on_create_triggered()
 //{
 //    QString standartFileName = "";

@@ -56,22 +56,20 @@ void WorkSpace::drawDiagram(QPainter &painter)
 
     std::vector<std::vector<std::vector<double>>> res = CalculationProducer::calcResults(firstElement);
 
-    double** borderVals = new double*[3];
-    borderVals[0] = new double[2];
-    borderVals[1] = new double[2];
-    borderVals[2] = new double[2];
-    borderVals[0][0] = 0, borderVals[0][1] = 0;
-    borderVals[1][0] = 0, borderVals[1][1] = 0;
-    borderVals[2][0] = 0, borderVals[2][1] = 0;
+    double minNx = 0, maxNx = 0;
+    double minUx = 0, maxUx = 0;
+    double minSx = 0, maxSx = 0;
+
     for (auto calc : res)
     {
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < calc[0].size(); i++)
         {
-            for (int j = 0; j < options::diagram::pointsCount; j++)
-            {
-                if (borderVals[i][0] > calc[i][j]) borderVals[i][0] = calc[i][j];
-                if (borderVals[i][1] < calc[i][j]) borderVals[i][1] = calc[i][j];
-            }
+            if (minNx > calc[0][i]) minNx = calc[0][i];
+            if (maxNx > calc[0][i]) maxNx = calc[0][i];
+            if (minUx > calc[1][i]) minUx = calc[1][i];
+            if (maxUx > calc[1][i]) maxUx = calc[1][i];
+            if (minSx > calc[2][i]) minSx = calc[2][i];
+            if (maxSx > calc[2][i]) maxSx = calc[2][i];
         }
     }
 
@@ -80,9 +78,9 @@ void WorkSpace::drawDiagram(QPainter &painter)
     while (el != nullptr)
     {
 
-        el->drawDiagram(painter, res[i][0], maxHeight, borderVals[0][0], borderVals[0][1], options::diagram::nXIndent, "Nx");
-        el->drawDiagram(painter, res[i][1], maxHeight, borderVals[1][0], borderVals[1][1], options::diagram::uXIndent, "Ux");
-        el->drawDiagram(painter, res[i][2], maxHeight, borderVals[2][0], borderVals[2][1], options::diagram::sXIndent, "Sx");
+        el->drawDiagram(painter, res[i][0], maxHeight, minNx, maxNx, options::diagram::nXIndent, "Nx");
+        el->drawDiagram(painter, res[i][1], maxHeight, minUx, maxUx, options::diagram::uXIndent, "Ux");
+        el->drawDiagram(painter, res[i][2], maxHeight, minSx, maxSx, options::diagram::sXIndent, "Sx");
         el = el->getRightConnectedElement();
         i++;
     }

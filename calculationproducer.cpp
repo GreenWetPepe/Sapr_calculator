@@ -5,19 +5,19 @@
 #include <QDebug>
 #include <fstream>
 
-double** CalculationProducer::matrixA = nullptr;
-double* CalculationProducer::matrixB = nullptr;
-double* CalculationProducer::matrixDelt = nullptr;
 int CalculationProducer::size = 0;
+std::vector<std::vector<double>> CalculationProducer::matrixA;
+std::vector<double> CalculationProducer::matrixB;
+std::vector<double> CalculationProducer::matrixDelt;
 
 CalculationProducer::CalculationProducer()
 {
 
 }
 
-double* CalculationProducer::calcPoint(SaprElement *el, int i, double x)
+std::unique_ptr<double[]> CalculationProducer::calcPoint(SaprElement *el, int i, double x)
 {
-    double *res = new double[3];
+    std::unique_ptr<double[]> res(new double[3]);
 
     res[0] = (el->getElasticModulus() * el->getSquare() / el->getLength()) * (matrixDelt[i + 1] - matrixDelt[i]) +
              (el->getXQForce() * el->getLength() / 2) * (1 - 2 * (x / el->getLength()));
@@ -38,12 +38,12 @@ void CalculationProducer::calculateArguments(std::vector<SaprElement*> elements)
 void CalculationProducer::prepareData(std::vector<SaprElement*> elements)
 {
     size = elements.size() + 1;
-    matrixA = new double*[size];
-    matrixB = new double[size];
+    matrixA.clear();
+    matrixB.clear();
     for (int i = 0; i < size; i++)
     {
-        matrixA[i] = new double[size];
-        matrixB[i] = 0;
+        matrixA.push_back(std::vector<double>(size));
+        matrixB.push_back(0);
         for (int j = 0; j < size; j++)
         {
             matrixA[i][j] = 0;
@@ -58,6 +58,8 @@ void CalculationProducer::prepareData(std::vector<SaprElement*> elements)
             break;
         }
     }
+
+    if (!firstElement) return;
 
     SaprElement *element = firstElement;
     int c = 0;
@@ -109,7 +111,8 @@ void CalculationProducer::calcDelt()
         }
     }
 
-    matrixDelt = new double[size];
+    matrixDelt.clear();
+    matrixDelt.reserve(size);
     for (int i = 0; i < size - 1; i++)
     {
         if (matrixA[i + 1][i] != 0)
@@ -142,7 +145,7 @@ void CalculationProducer::calcDelt()
 std::vector<std::vector<std::vector<double>>> CalculationProducer::calcResults(SaprElement *firstElement)
 {
     std::vector<std::vector<std::vector<double>>> res;
-    if (matrixDelt == nullptr) return res;
+    if (matrixDelt.empty()) return res;
     SaprElement* el = firstElement;
 
     int i = 0;
@@ -171,12 +174,12 @@ std::vector<std::vector<std::vector<double>>> CalculationProducer::calcResults(S
 
 void CalculationProducer::dropCalculation()
 {
-    matrixA = nullptr;
-    matrixB = nullptr;
-    matrixDelt = nullptr;
+    matrixA.clear();
+    matrixB.clear();
+    matrixDelt.clear();
 }
 
 bool CalculationProducer::isReady()
 {
-    return (matrixA == nullptr || matrixB == nullptr || matrixDelt == nullptr) ? false : true;
+    return (matrixA.empty() || matrixB.empty() || matrixDelt.empty()) ? false : true;
 }
