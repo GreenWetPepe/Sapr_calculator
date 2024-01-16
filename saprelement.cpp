@@ -308,12 +308,14 @@ SaprElementData SaprElement::getData()
 
 void SaprElement::setLeftForce(double force)
 {
+    if (leftSupport) return;
     xLeftForce = force;
     if (leftConnectedElement != nullptr) leftConnectedElement->xRightForce = force;
 }
 
 void SaprElement::setRightForce(double force)
 {
+    if (rightSupport) return;
     xRightForce = force;
     if (rightConnectedElement != nullptr) rightConnectedElement->xLeftForce = force;
 }
