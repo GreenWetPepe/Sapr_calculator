@@ -19,12 +19,12 @@ double* CalculationProducer::calcPoint(SaprElement *el, int i, double x)
 {
     double *res = new double[3];
 
-    res[0] = (el->elasticModulus * el->square / el->length) * (matrixDelt[i + 1] - matrixDelt[i]) +
-             (el->xQForce * el->length / 2) * (1 - 2 * (x / el->length));
-    res[1] = matrixDelt[i] + (x / el->length) * (matrixDelt[i + 1] - matrixDelt[i]) +
-                       el->xQForce * el->length * el->length / (2 * el->elasticModulus * el->square) * (x / el->length) *
-                           (1 - (x / el->length));
-    res[2] = res[0] / el->square;
+    res[0] = (el->getElasticModulus() * el->getSquare() / el->getLength()) * (matrixDelt[i + 1] - matrixDelt[i]) +
+             (el->getXQForce() * el->getLength() / 2) * (1 - 2 * (x / el->getLength()));
+    res[1] = matrixDelt[i] + (x / el->getLength()) * (matrixDelt[i + 1] - matrixDelt[i]) +
+             el->getXQForce() * el->getLength() * el->getLength() / (2 * el->getElasticModulus() * el->getSquare()) *
+                                                                    (x / el->getLength()) * (1 - (x / el->getLength()));
+    res[2] = res[0] / el->getSquare();
 
     return res;
 }
@@ -52,7 +52,7 @@ void CalculationProducer::prepareData(std::vector<SaprElement*> elements)
     SaprElement *firstElement = nullptr;
     for (auto el : elements)
     {
-        if (el->leftConnectedElement == nullptr)
+        if (!el->getLeftConnectedElement())
         {
             firstElement = el;
             break;
@@ -63,29 +63,29 @@ void CalculationProducer::prepareData(std::vector<SaprElement*> elements)
     int c = 0;
     while(true)
     {
-        double cellVar = element->elasticModulus * element->square / element->length;
+        double cellVar = element->getElasticModulus() * element->getSquare() / element->getLength();
         matrixA[c][c] += cellVar;
         matrixA[c + 1][c + 1] += cellVar;
         matrixA[c + 1][c] = -cellVar;
         matrixA[c][c + 1] = -cellVar;
 
-        matrixB[c] += element->xLeftForce + element->xQForce * element->length / 2;
-        matrixB[c + 1] += element->xQForce * element->length / 2;
+        matrixB[c] += element->getXLeftForce() + element->getXQForce() * element->getLength() / 2;
+        matrixB[c + 1] += element->getXQForce() * element->getLength() / 2;
 
-        if (element->rightConnectedElement == nullptr) break;
-        element = element->rightConnectedElement;
+        if (!element->getRightConnectedElement()) break;
+        element = element->getRightConnectedElement();
         c++;
     }
-    matrixB[c + 1] += element->xRightForce;
+    matrixB[c + 1] += element->getXRightForce();
 
-    if (firstElement->hasLeftSupport)
+    if (firstElement->hasLeftSupport())
     {
         matrixA[0][0] = 1;
         matrixA[0][1] = 0;
         matrixA[1][0] = 0;
         matrixB[0] = 0;
     }
-    if (element->hasRightSupport)
+    if (element->hasRightSupport())
     {
         matrixA[c + 1][c + 1] = 1;
         matrixA[c + 1][c] = 0;
@@ -154,15 +154,16 @@ std::vector<std::vector<std::vector<double>>> CalculationProducer::calcResults(S
         res.back().push_back(std::vector<double>());
         for (int j = 0; j < options::diagram::pointsCount; j++)
         {
-            res.back()[0].push_back((el->elasticModulus * el->square / el->length) * (matrixDelt[i + 1] - matrixDelt[i]) +
-                                    (el->xQForce * el->length / 2) * (1 - 2 * (double(j) / options::diagram::pointsCount)));
+            res.back()[0].push_back((el->getElasticModulus() * el->getSquare() / el->getLength()) * (matrixDelt[i + 1] - matrixDelt[i]) +
+                                (el->getXQForce() * el->getLength() / 2) * (1 - 2 * (double(j) / options::diagram::pointsCount)));
             res.back()[1].push_back(matrixDelt[i] + (double(j) / options::diagram::pointsCount) * (matrixDelt[i + 1] - matrixDelt[i]) +
-                               el->xQForce * el->length * el->length / (2 * el->elasticModulus * el->square) * (double(j) / options::diagram::pointsCount) *
-                                                                                            (1 - (double(j) / options::diagram::pointsCount)));
-            res.back()[2].push_back(res.back()[0][j] / el->square);
+                        el->getXQForce() * el->getLength() * el->getLength() / (2 * el->getElasticModulus() * el->getSquare()) *
+                        (double(j) / options::diagram::pointsCount) *
+                        (1 - (double(j) / options::diagram::pointsCount)));
+            res.back()[2].push_back(res.back()[0][j] / el->getSquare());
         }
         i++;
-        el = el->rightConnectedElement;
+        el = el->getRightConnectedElement();
     }
 
     return res;

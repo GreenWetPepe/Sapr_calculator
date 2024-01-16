@@ -4,6 +4,7 @@
 #include "calculationproducer.h"
 #include "workspace.h"
 #include "filehandler.h"
+#include "SaprElementData.h"
 
 #include <QWidget>
 #include <QPainter>
@@ -24,11 +25,17 @@ public:
 
     virtual void paintEvent(QPaintEvent *event);
 
+    void resizeWidget(int width, int height);
+    void setSelectedElementsParameters(SaprElementData data);
+
+signals:
+    void linkSelectedElementsDataWithWidget(std::vector<SaprElement*> selectedElements);
+
 private slots:
 
     void on_addSegment_clicked();
 
-    void on_setData_clicked();
+//    void on_setData_clicked();
 
 //    void on_create_triggered();
 
@@ -38,17 +45,15 @@ private slots:
 
 //    void on_buildAction_triggered();
 
-    void on_lineEdit_editingFinished();
+//    void on_lineEdit_editingFinished();
 
-    void on_showTableAction_triggered();
+//    void on_showTableAction_triggered();
 
 private:
     Ui::ProjectWidget *ui;
 
     WorkSpace workSpace;
-    SaprElement *selectedElement;
-    QWidget *settingsWidget;
-    QWidget *calcPointWidget;
+    std::vector<SaprElement*> selectedElements;
     Qt::MouseButton lastButton = Qt::NoButton;
     int lastX, lastY;
 
@@ -59,10 +64,9 @@ private:
     void mouseMoveEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
-    void resizeEvent(QResizeEvent *event);
 
-    void moveElementDataToSettings();
-    void moveElementDataToCalcPoint();
+//    void moveElementDataToSettings();
+//    void moveElementDataToCalcPoint();
 };
 
 #endif // PROJECTWIDGET_H

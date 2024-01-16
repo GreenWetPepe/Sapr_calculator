@@ -89,13 +89,13 @@ void FileHandler::saveProject(std::vector<SaprElement*> elements)
         fo.open(projectPath, std::ofstream::out | std::ofstream::trunc);
         for(int i = 0; i < elements.size(); i++)
         {
-            fo << elements[i]->length << " " << elements[i]->square << " " << elements[i]->elasticModulus << " ";
-            fo << elements[i]->permissibleStress << " " << elements[i]->xLeftForce << " " << elements[i]->xRightForce << " ";
-            fo << elements[i]->xQForce << " " << elements[i]->hasLeftSupport << " " << elements[i]->hasRightSupport << " ";
+            fo << elements[i]->getLength() << " " << elements[i]->getSquare() << " " << elements[i]->getElasticModulus() << " ";
+            fo << elements[i]->getPermissibleStress() << " " << elements[i]->getXLeftForce() << " " << elements[i]->getXRightForce() << " ";
+            fo << elements[i]->getXQForce() << " " << elements[i]->hasLeftSupport() << " " << elements[i]->hasRightSupport() << " ";
             int rightBarId = -1;
             for (int j = 0; j < elements.size(); j++)
             {
-                if (elements[j] == elements[i]->rightConnectedElement) rightBarId = j;
+                if (elements[j] == elements[i]->getRightConnectedElement()) rightBarId = j;
             }
             fo << rightBarId;
             fo << "\n";

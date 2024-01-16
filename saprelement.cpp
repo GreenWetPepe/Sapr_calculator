@@ -21,7 +21,7 @@ SaprElement::SaprElement(const SaprElement &el)
     xRightForce = el.xRightForce;
     xLeftForce = el.xLeftForce;
     xQForce = el.xQForce;
-    isSelected = el.isSelected;
+    selected = el.selected;
 }
 
 SaprElement::SaprElement(double length, double square, double elasticModulus, double permissibleStress, double xLeftForce, double xRightForce, double xQForce, bool hasLeftSup, bool hasRightSup)
@@ -33,13 +33,13 @@ SaprElement::SaprElement(double length, double square, double elasticModulus, do
     this->xLeftForce = xLeftForce;
     this->xRightForce = xRightForce;
     this->xQForce = xQForce;
-    this->hasLeftSupport = hasLeftSup;
-    this->hasRightSupport = hasRightSup;
+    this->leftSupport = hasLeftSup;
+    this->rightSupport = hasRightSup;
 }
 
 void SaprElement::draw(QPainter &painter, double maxHeight)
 {
-    if (isSelected) painter.setPen(Qt::cyan);
+    if (selected) painter.setPen(Qt::cyan);
 
     painter.drawRect(QRect(x, y, width, height));
     if (maxHeight > 0) drawParams(painter, maxHeight);
@@ -136,7 +136,30 @@ void SaprElement::drawParams(QPainter &painter, int maxHeight)
     painter.drawText(QPoint(x + width / 4, y - 10), QString::number(elasticModulus) + "E   " + QString::number(square) + "A");
 }
 
-void SaprElement::drawDiagram(QPainter &painter, std::vector<double> points, int maxHeight, double minVal, double maxVal, int indent)
+void SaprElement::drawSupports(QPainter &painter, int maxHeight)
+{
+    int supportsLineCount = 23;
+    if (leftSupport)
+    {
+        painter.drawLine(x - 3, y + height / 2 - (maxHeight + 100) / 2, x - 3, y + height / 2 + (maxHeight + 100) / 2);
+        for (int i = 0; i < supportsLineCount; i++)
+        {
+            painter.drawLine(x - 6, y + height / 2 - (maxHeight + 100) / 2 + (maxHeight + 100) / supportsLineCount * i,
+                             x - 15, y + height / 2 - (maxHeight + 100) / 2 + (maxHeight + 100) / supportsLineCount * i + 8);
+        }
+    }
+    if (rightSupport)
+    {
+        painter.drawLine(x + width + 3, y + height / 2 - (maxHeight + 100) / 2, x + width + 3, y + height / 2 + (maxHeight + 100) / 2);
+        for (int i = 0; i < supportsLineCount; i++)
+        {
+            painter.drawLine(x + width + 15, y + height / 2 - (maxHeight + 100) / 2 + (maxHeight + 100) / supportsLineCount * i,
+                             x + width + 6, y + height / 2 - (maxHeight + 100) / 2 + (maxHeight + 100) / supportsLineCount * i + 8);
+        }
+    }
+}
+
+void SaprElement::drawDiagram(QPainter &painter, std::vector<double> points, int maxHeight, double minVal, double maxVal, int indent, std::string label)
 {
     double pointsDelt = maxVal - minVal;
     if (pointsDelt == 0) pointsDelt = 1;
@@ -149,6 +172,13 @@ void SaprElement::drawDiagram(QPainter &painter, std::vector<double> points, int
     // DRAW ZERO LINES
     painter.drawLine(x, y + height / 2 + maxHeight * indent - (0 - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply,
                      x + width, y + height / 2 + maxHeight * indent - (0 - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply);
+
+    if (!leftConnectedElement)
+    {
+        painter.drawText(QPoint(x - 25, y + height / 2 + maxHeight * options::diagram::nXIndent -
+                                            (0 - minVal) / (pointsDelt) *
+                                                maxHeight * options::diagram::diagramSizeMultiply), QString::fromStdString(label));
+    }
 
 //    painter.setPen(Qt::green); // Draw diagrams border
 //    painter.drawRect(x, y + height / 2 + maxHeight * indent, width, maxHeight * diagramSizeMultiply);
@@ -183,10 +213,97 @@ void SaprElement::drawDiagram(QPainter &painter, std::vector<double> points, int
     painter.setPen(Qt::black);
 }
 
+QString SaprElement::doubleToQString(double num)
+{
+    char format = 'f';
+    int precision = 2;
+
+    if (abs(num) > 1000)
+    {
+        std::string str = std::to_string(num);
+        if (str[1] == '0' && str[2] == '0') precision = 0;
+        format = 'e';
+    }
+    if (int(num * 100) % 100 == 0) precision = 0;
+
+    return QString::number(num, format, precision);
+}
+
 void SaprElement::zoom(double multiply)
 {
     width *= multiply;
     height *= multiply;
+}
+
+void SaprElement::adjustSize(double maxLength, double maxSquare, int windowWidth, int windowHeight, double sizeMult)
+{
+    width = windowWidth * options::workSpace::maxElementWidthRelationToWindow * (options::workSpace::minElementWidthRelationToMaxWidth +
+                                                    length / (maxLength / options::workSpace::minElementWidthRelationToMaxWidth)) * sizeMult;
+    height = windowHeight * options::workSpace::maxElementHeightRelationToWindow * (options::workSpace::minElementHeightRelationToMaxHeight +
+                                                    square / (maxSquare / options::workSpace::minElementHeightRelationToMaxHeight)) * sizeMult;
+}
+
+void SaprElement::move(int x, int y)
+{
+    this->x += x;
+    this->y += y;
+}
+
+void SaprElement::correctPosToLinkedElement()
+{
+    if (!rightConnectedElement) return;
+    rightConnectedElement->x = x + width;
+    rightConnectedElement->y = y + height / 2 - rightConnectedElement->height / 2;
+}
+
+int SaprElement::checkForConnection(SaprElement *element)
+{
+    if (x > element->x)
+    {
+        if (abs(x - (element->x + element->width)) <= options::workSpace::xElementConnectionSpread &&
+            abs(y + height / 2 - (element->y + element->height / 2)) <= options::workSpace::yElementConnectionSpread)
+        {
+            return options::saprElement::leftConnection;
+        }
+        return options::saprElement::noConnection;
+    }
+    else
+    {
+        if (abs(element->x - (x + width)) <= options::workSpace::xElementConnectionSpread &&
+            abs(y + height / 2 - (element->y + element->height / 2)) <= options::workSpace::yElementConnectionSpread)
+        {
+            return options::saprElement::rightConnection;
+        }
+        return options::saprElement::noConnection;
+    }
+}
+
+void SaprElement::setData(SaprElementData data)
+{
+    setLength(data.length);
+    setSquare(data.square);
+    setElasticModulus(data.elasticModulus);
+    setPermissibleStress(data.permissibleStress);
+    setXQForce(data.xQForce);
+    setLeftForce(data.xLeftForce);
+    setRightForce(data.xRightForce);
+    setLeftSupport(data.hasLeftSupport);
+    setRightSupport(data.hasRightSupport);
+}
+
+SaprElementData SaprElement::getData()
+{
+    SaprElementData data;
+    data.length = length;
+    data.square = square;
+    data.elasticModulus = elasticModulus;
+    data.permissibleStress = permissibleStress;
+    data.xLeftForce = xQForce;
+    data.xRightForce = xLeftForce;
+    data.xQForce = xRightForce;
+    data.hasLeftSupport = leftSupport;
+    data.hasRightSupport = rightSupport;
+    return data;
 }
 
 void SaprElement::setLeftForce(double force)
@@ -204,29 +321,159 @@ void SaprElement::setRightForce(double force)
 void SaprElement::setLeftConnection(SaprElement *element)
 {
     if (leftConnectedElement != nullptr) leftConnectedElement->rightConnectedElement = nullptr;
-    if (element != nullptr) element->rightConnectedElement = this;
+    if (element != nullptr)
+    {
+        element->rightConnectedElement = this;
+        element->setRightSupport(false);
+        setLeftSupport(false);
+        setLeftForce(xLeftForce);
+    }
     leftConnectedElement = element;
 }
 
 void SaprElement::setRightConnection(SaprElement *element)
 {
     if (rightConnectedElement != nullptr) rightConnectedElement->leftConnectedElement = nullptr;
-    if (element != nullptr) element->leftConnectedElement = this;
+    if (element != nullptr)
+    {
+        element->leftConnectedElement = this;
+        element->setLeftSupport(false);
+        setRightSupport(false);
+        setRightForce(xRightForce);
+    }
     rightConnectedElement = element;
 }
 
-QString SaprElement::doubleToQString(double num)
+void SaprElement::setLength(double length)
 {
-    char format = 'f';
-    int precision = 2;
+    if (length > 0) this->length = length;
+}
 
-    if (abs(num) > 1000)
+void SaprElement::setSquare(double square)
+{
+    if (square > 0) this->square = square;
+}
+
+void SaprElement::setElasticModulus(double elasticModulus)
+{
+    if (elasticModulus > 0) this->elasticModulus = elasticModulus;
+}
+
+void SaprElement::setPermissibleStress(double permissibleStress)
+{
+    if (permissibleStress > 0) this->permissibleStress = permissibleStress;
+}
+
+void SaprElement::setXQForce(double xQForce)
+{
+    this->xQForce = xQForce;
+}
+
+void SaprElement::setLeftSupport(bool leftSupport)
+{
+    if (leftSupport)
     {
-        std::string str = std::to_string(num);
-        if (str[1] == '0' && str[2] == '0') precision = 0;
-        format = 'e';
+        if (!leftConnectedElement) this->leftSupport = true;
     }
-    if (int(num * 100) % 100 == 0) precision = 0;
+    else
+    {
+        this->leftSupport = false;
+    }
+}
 
-    return QString::number(num, format, precision);
+void SaprElement::setRightSupport(bool rightSupport)
+{
+    if (rightSupport)
+    {
+        if (!rightConnectedElement) this->rightSupport = true;
+    }
+    else
+    {
+        this->rightSupport = false;
+    }
+}
+
+void SaprElement::setSelected(bool selected)
+{
+    this->selected = selected;
+}
+
+int SaprElement::getX()
+{
+    return x;
+}
+
+int SaprElement::getY()
+{
+    return y;
+}
+
+int SaprElement::getWidth()
+{
+    return width;
+}
+
+int SaprElement::getHeight()
+{
+    return height;
+}
+
+double SaprElement::getLength()
+{
+    return length;
+}
+
+double SaprElement::getSquare()
+{
+    return square;
+}
+
+double SaprElement::getElasticModulus()
+{
+    return elasticModulus;
+}
+
+double SaprElement::getPermissibleStress()
+{
+    return permissibleStress;
+}
+
+double SaprElement::getXLeftForce()
+{
+    return xLeftForce;
+}
+
+double SaprElement::getXRightForce()
+{
+    return xRightForce;
+}
+
+double SaprElement::getXQForce()
+{
+    return xQForce;
+}
+
+bool SaprElement::hasLeftSupport()
+{
+    return leftSupport;
+}
+
+bool SaprElement::hasRightSupport()
+{
+    return rightSupport;
+}
+
+bool SaprElement::isSelected()
+{
+    return selected;
+}
+
+SaprElement* SaprElement::getLeftConnectedElement()
+{
+    return leftConnectedElement;
+}
+
+SaprElement* SaprElement::getRightConnectedElement()
+{
+    return rightConnectedElement;
 }

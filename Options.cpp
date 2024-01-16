@@ -11,6 +11,9 @@ namespace options
         static const int xQForceArrowIndent = 7, yQForceArrowIndent = 5;
         constexpr static double forceArrowIndentCoeff = 0.4;
 
+        static const int noConnection = 0;
+        static const int leftConnection = 1;
+        static const int rightConnection = 2;
     }
 
     namespace diagram
@@ -31,4 +34,13 @@ namespace options
         static const int height = 50;
     }
 
+    namespace workSpace
+    {
+        static const int xElementConnectionSpread = 15;
+        static const int yElementConnectionSpread = 100;
+        static const double maxElementHeightRelationToWindow = 0.3;
+        static const double maxElementWidthRelationToWindow = 0.3;
+        static const double minElementHeightRelationToMaxHeight = 0.35;
+        static const double minElementWidthRelationToMaxWidth = 0.35;
+    }
 }

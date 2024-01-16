@@ -27,7 +27,7 @@ public:
     void moveElements(int deltX, int deltY);
     void autoSizeElements();
     void correctLinkedElementsPos();
-    void checkForConnection(SaprElement *element);
+    void checkForConnections(SaprElement *element);
     bool checkSystemReadiness();
 
     void drawElements(QPainter &painter);
@@ -46,13 +46,6 @@ public:
 private:
     std::string projectPath = (QDir::homePath()).toStdString() + "untitled.sapr";
     int windowWidth, windowHeight;
-
-    const int xElementConnectionSpread = 15;
-    const int yElementConnectionSpread = 100;
-    const double maxElementHeightRelationToWindow = 0.3;
-    const double maxElementWidthRelationToWindow = 0.3;
-    const double minElementHeightRalationToMaxHeight = 0.35;
-    const double minElementWidthRalationToMaxWidth = 0.35;
 
     const double minSizeMult = 0.4;
 

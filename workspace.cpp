@@ -30,11 +30,7 @@ WorkSpace::WorkSpace(std::string path)
 
 void WorkSpace::drawElements(QPainter &painter)
 {
-    double maxHeight = -1;
-    for (SaprElement *el : elements)
-    {
-        if (el->height > maxHeight) maxHeight = el->height;
-    }
+    double maxHeight = getMaxHeight();
 
     for(SaprElement *el : elements)
     {
@@ -46,27 +42,9 @@ void WorkSpace::drawElements(QPainter &painter)
 
 void WorkSpace::drawSupports(QPainter &painter, int maxHeight)
 {
-    int supportsLineCount = 23;
     for (auto el : elements)
     {
-        if (el->hasLeftSupport)
-        {
-            painter.drawLine(el->x - 3, el->y + el->height / 2 - (maxHeight + 100) / 2, el->x - 3, el->y + el->height / 2 + (maxHeight + 100) / 2);
-            for (int i = 0; i < supportsLineCount; i++)
-            {
-                painter.drawLine(el->x - 6, el->y + el->height / 2 - (maxHeight + 100) / 2 + (maxHeight + 100) / supportsLineCount * i,
-                                 el->x - 15, el->y + el->height / 2 - (maxHeight + 100) / 2 + (maxHeight + 100) / supportsLineCount * i + 8);
-            }
-        }
-        if (el->hasRightSupport)
-        {
-            painter.drawLine(el->x + el->width + 3, el->y + el->height / 2 - (maxHeight + 100) / 2, el->x + el->width + 3, el->y + el->height / 2 + (maxHeight + 100) / 2);
-            for (int i = 0; i < supportsLineCount; i++)
-            {
-                painter.drawLine(el->x + el->width + 15, el->y + el->height / 2 - (maxHeight + 100) / 2 + (maxHeight + 100) / supportsLineCount * i,
-                                 el->x + el->width + 6, el->y + el->height / 2 - (maxHeight + 100) / 2 + (maxHeight + 100) / supportsLineCount * i + 8);
-            }
-        }
+        el->drawSupports(painter, maxHeight);
     }
 }
 
@@ -98,33 +76,23 @@ void WorkSpace::drawDiagram(QPainter &painter)
     }
 
     SaprElement *el = firstElement;
-
-    painter.drawText(QPoint(el->x - 25, el->y + el->height / 2 + maxHeight * options::diagram::nXIndent -
-                                            (0 - borderVals[0][0]) / (borderVals[0][1] - borderVals[0][0]) *
-                                            maxHeight * options::diagram::diagramSizeMultiply), QString("Nx"));
-    painter.drawText(QPoint(el->x - 25, el->y + el->height / 2 + maxHeight * options::diagram::uXIndent -
-                                            (0 - borderVals[1][0]) / (borderVals[1][1] - borderVals[1][0]) *
-                                            maxHeight * options::diagram::diagramSizeMultiply), QString("Ux"));
-    painter.drawText(QPoint(el->x - 25, el->y + el->height / 2 + maxHeight * options::diagram::sXIndent -
-                                            (0 - borderVals[2][0]) / (borderVals[2][1] - borderVals[2][0]) *
-                                            maxHeight * options::diagram::diagramSizeMultiply), QString("Sx"));
     int i = 0;
     while (el != nullptr)
     {
 
-        el->drawDiagram(painter, res[i][0], maxHeight, borderVals[0][0], borderVals[0][1], options::diagram::nXIndent);
-        el->drawDiagram(painter, res[i][1], maxHeight, borderVals[1][0], borderVals[1][1], options::diagram::uXIndent);
-        el->drawDiagram(painter, res[i][2], maxHeight, borderVals[2][0], borderVals[2][1], options::diagram::sXIndent);
-        el = el->rightConnectedElement;
+        el->drawDiagram(painter, res[i][0], maxHeight, borderVals[0][0], borderVals[0][1], options::diagram::nXIndent, "Nx");
+        el->drawDiagram(painter, res[i][1], maxHeight, borderVals[1][0], borderVals[1][1], options::diagram::uXIndent, "Ux");
+        el->drawDiagram(painter, res[i][2], maxHeight, borderVals[2][0], borderVals[2][1], options::diagram::sXIndent, "Sx");
+        el = el->getRightConnectedElement();
         i++;
     }
 }
 
 SaprElement* WorkSpace::findElement(int x, int y)
 {
-    for(SaprElement *el : elements)
+    for (auto el : elements)
     {
-        if (x >= el->x && y >= el->y && x <= el->x + el->width && y <= el->y + el->height)
+        if (x >= el->getX() && y >= el->getY() && x <= el->getX() + el->getWidth() && y <= el->getY() + el->getHeight())
         {
             return el;
         }
@@ -137,7 +105,7 @@ SaprElement* WorkSpace::getFirstLinkedElement()
 {
     for (auto el : elements)
     {
-        if (!el->leftConnectedElement)
+        if (!el->getRightConnectedElement())
         {
             return el;
         }
@@ -157,8 +125,8 @@ void WorkSpace::removeElement(SaprElement *element)
     {
         if (element == elements[i])
         {
-            if (elements[i]->leftConnectedElement != nullptr) elements[i]->leftConnectedElement->rightConnectedElement = nullptr;
-            if (elements[i]->rightConnectedElement != nullptr) elements[i]->rightConnectedElement->leftConnectedElement = nullptr;
+            if (elements[i]->getLeftConnectedElement() != nullptr) elements[i]->getLeftConnectedElement()->setRightConnection(nullptr);
+            if (elements[i]->getRightConnectedElement() != nullptr) elements[i]->getRightConnectedElement()->setLeftConnection(nullptr);
             delete elements[i];
             elements.erase(elements.begin() + i);
         }
@@ -172,43 +140,30 @@ int WorkSpace::getMaxHeight()
     int maxHeight = 0;
     for (auto el : elements)
     {
-        if (maxHeight < el->height) maxHeight = el->height;
+        if (maxHeight < el->getHeight()) maxHeight = el->getHeight();
     }
     return maxHeight;
 }
 
-void WorkSpace::checkForConnection(SaprElement *element)
+void WorkSpace::checkForConnections(SaprElement *element)
 {
     element->setLeftConnection(nullptr);
     element->setRightConnection(nullptr);
 
-    for(SaprElement *el : elements)
+    for (auto el : elements)
     {
-        if (&element != &el)
+        if (element != el)
         {
-            if (element->x > el->x)
+            int connectionType = element->checkForConnection(el);
+            if (connectionType == options::saprElement::leftConnection)
             {
-                if (abs(element->x - (el->x + el->width)) <= xElementConnectionSpread && abs(element->y + element->height / 2 - (el->y + el->height / 2)) <= yElementConnectionSpread)
-                {
-                    element->x = el->x + el->width;
-                    element->y = el->y - (element->height / 2 - el->height / 2);
-                    element->setLeftConnection(el);
-                    element->xLeftForce = element->leftConnectedElement->xRightForce;
-                    element->hasLeftSupport = false;
-                    el->hasRightSupport = false;
-                }
+                el->setRightConnection(element);
+                el->correctPosToLinkedElement();
             }
-            else
+            else if (connectionType == options::saprElement::rightConnection)
             {
-                if (abs(el->x - (element->x + element->width)) <= xElementConnectionSpread && abs(element->y + element->height / 2 - (el->y + el->height / 2)) <= yElementConnectionSpread)
-                {
-                    element->x = el->x - element->width + 1;
-                    element->y = el->y - (element->height / 2 - el->height / 2);
-                    element->setRightConnection(el);
-                    element->xRightForce = element->rightConnectedElement->xLeftForce;
-                    element->hasRightSupport = false;
-                    el->hasLeftSupport = false;
-                }
+                el->setLeftConnection(element);
+                element->correctPosToLinkedElement();
             }
         }
     }
@@ -222,10 +177,10 @@ bool WorkSpace::checkSystemReadiness()
     SaprElement *firstElement = getFirstLinkedElement();
     while(firstElement)
     {
-        if (firstElement->hasLeftSupport) supportsCount++;
-        if (firstElement->hasRightSupport) supportsCount++;
+        if (firstElement->hasLeftSupport()) supportsCount++;
+        if (firstElement->hasRightSupport()) supportsCount++;
         linkedElementsCount++;
-        firstElement = firstElement->rightConnectedElement;
+        firstElement = firstElement->getRightConnectedElement();
     }
 
     if (supportsCount == 0 || supportsCount > 2 || linkedElementsCount != elements.size()) return false;
@@ -248,14 +203,13 @@ void WorkSpace::autoSizeElements()
     double maxLength = -1, maxSquare = -1;
     for (auto el : elements)
     {
-        if (maxLength < el->length) maxLength = el->length;
-        if (maxSquare < el->square) maxSquare = el->square;
+        if (maxLength < el->getLength()) maxLength = el->getLength();
+        if (maxSquare < el->getSquare()) maxSquare = el->getSquare();
     }
 
     for (auto el : elements)
     {
-        el->width = windowWidth * maxElementWidthRelationToWindow * (minElementWidthRalationToMaxWidth + el->length / (maxLength / minElementWidthRalationToMaxWidth)) * sizeMult;
-        el->height = windowHeight * maxElementHeightRelationToWindow * (minElementHeightRalationToMaxHeight + el->square / (maxSquare / minElementHeightRalationToMaxHeight)) * sizeMult;
+        el->adjustSize(maxLength, maxSquare, windowWidth, windowHeight, sizeMult);
     }
 
     correctLinkedElementsPos();
@@ -265,14 +219,13 @@ void WorkSpace::correctLinkedElementsPos()
 {
     for (auto el : elements)
     {
-        if (el->leftConnectedElement == nullptr)
+        if (!el->getLeftConnectedElement())
         {
             SaprElement *linkedElement = el;
-            while (linkedElement->rightConnectedElement != nullptr)
+            while (linkedElement->getRightConnectedElement())
             {
-                linkedElement->rightConnectedElement->x = linkedElement->x + linkedElement->width;
-                linkedElement->rightConnectedElement->y = linkedElement->y + linkedElement->height / 2 - linkedElement->rightConnectedElement->height / 2;
-                linkedElement = linkedElement->rightConnectedElement;
+                linkedElement->correctPosToLinkedElement();
+                linkedElement = linkedElement->getRightConnectedElement();
             }
         }
     }
@@ -303,8 +256,7 @@ void WorkSpace::moveElements(int deltX, int deltY)
 {
     for(SaprElement *el : elements)
     {
-        el->x += deltX;
-        el->y += deltY;
+        el->move(deltX, deltY);
     }
 }
 

@@ -16,18 +16,17 @@ SOURCES += \
     mainwindow.cpp \
     menuwidget.cpp \
     projectwidget.cpp \
-    renderer.cpp \
     saprelement.cpp \
     workspace.cpp \
     workspacewidget.cpp
 
 HEADERS += \
+    SaprElementData.h \
     calculationproducer.h \
     filehandler.h \
     mainwindow.h \
     menuwidget.h \
     projectwidget.h \
-    renderer.h \
     saprelement.h \
     workspace.h \
     workspacewidget.h
