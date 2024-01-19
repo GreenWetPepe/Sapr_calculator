@@ -12,10 +12,10 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    MenuWidget *menuWidget = new MenuWidget();
-    WorkSpaceWidget *workSpaceWidwet = new WorkSpaceWidget();
+    menuWidget = new MenuWidget();
+    workSpaceWidget = new WorkSpaceWidget();
 
-    setCentralWidget(workSpaceWidwet);
+    setCentralWidget(menuWidget);
 }
 
 MainWindow::~MainWindow()
@@ -25,18 +25,39 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_createProjectAction_triggered()
 {
-    qDebug() << "UWU";
+    if (centralWidget() != workSpaceWidget)
+    {
+        setCentralWidget(workSpaceWidget);
+    }
+    workSpaceWidget->addProjectWindow();
+//    QString standartFileName = "";
+//    QString filePath = QFileDialog::getSaveFileName(this, "Создать файл", QDir::homePath(), "SAPR-проект (*.sapr);;Все файлы (*.*)", &standartFileName);
+//    CalculationProducer::dropCalculation();
+//    FileHandler::createFile(filePath.toStdString());
+//    workSpace.elements.clear();
+//    qDebug() << filePath;
+//    update();
+
 }
 
 
 void MainWindow::on_openProjectAction_triggered()
 {
-
+//    QString filePath =  QFileDialog::getOpenFileName(this, "Выберите файл", QDir::homePath(), "SAPR-проект (*.sapr)");
+//    if (FileHandler::openProject(filePath.toStdString()))
+//    {
+//        workSpace.elements = FileHandler::readElements;
+//        workSpace.correctLinkedElementsPos();
+//        workSpace.autoSizeElements();
+//    }
+//    CalculationProducer::dropCalculation();
+//    qDebug() << filePath;
+//    update();
 }
 
 
 void MainWindow::on_saveProjectAction_triggered()
 {
-
+//    FileHandler::saveProject(workSpace.elements);
 }
 

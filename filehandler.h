@@ -20,8 +20,6 @@ public:
     static std::vector<SaprElement*> readElements;
 
 private:
-    static std::string projectPath;
-    static bool isPathSetted;
 };
 
 #endif // FILEHANDLER_H

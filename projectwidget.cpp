@@ -130,7 +130,6 @@ void ProjectWidget::mouseMoveEvent(QMouseEvent *event)
 {
     isLastEventMove = false;
     int deltX = event->x() - lastX, deltY = event->y() - lastY;
-    qDebug() << deltX << " " << deltY;
     if (deltX != 0 || deltY != 0)
     {
         if (lastMouseButton == Qt::RightButton)
@@ -235,6 +234,7 @@ void ProjectWidget::mouseReleaseEvent(QMouseEvent *event)
             for (auto el : selectedElements)
             {
                 workSpace.checkForConnections(el);
+                emit setWidgetAsUnsaved(this);
             }
             emit linkSelectedElementsDataWithWidget(selectedElements);
         }
@@ -265,6 +265,16 @@ void ProjectWidget::setSelectedElementsParameters(SaprElementData data)
     workSpace.autoSizeElements();
     update();
     emit linkSelectedElementsDataWithWidget(selectedElements);
+}
+
+std::string ProjectWidget::getProjectPath()
+{
+    return projectPath;
+}
+
+std::string ProjectWidget::getProjectName()
+{
+    return projectName;
 }
 
 //void ProjectWidget::on_create_triggered()

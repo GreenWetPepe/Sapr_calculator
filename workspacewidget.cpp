@@ -8,9 +8,6 @@ WorkSpaceWidget::WorkSpaceWidget(QWidget *parent) :
     ui(new Ui::WorkSpaceWidget)
 {
     ui->setupUi(this);
-    projectWidgets.push_back(new ProjectWidget(ui->tab));
-    connect(projectWidgets[0], &ProjectWidget::linkSelectedElementsDataWithWidget,
-            this, &WorkSpaceWidget::setElementParameters);
 }
 
 WorkSpaceWidget::~WorkSpaceWidget()
@@ -18,9 +15,30 @@ WorkSpaceWidget::~WorkSpaceWidget()
     delete ui;
 }
 
+void WorkSpaceWidget::addProjectWindow()
+{
+    projectWidgets.push_back(new ProjectWidget());
+    ui->tabWidget->addTab(projectWidgets.back(), QString::fromStdString(projectWidgets.back()->getProjectName()));
+    projectWidgets.back()->resizeWidget(ui->tabWidget->size().width(), ui->tabWidget->size().height());
+    connect(projectWidgets.back(), &ProjectWidget::linkSelectedElementsDataWithWidget,
+            this, &WorkSpaceWidget::setElementParameters);
+    connect(projectWidgets.back(), &ProjectWidget::setWidgetAsUnsaved,
+            this, &WorkSpaceWidget::markTabAsUnsaved);
+}
+
+void WorkSpaceWidget::markTabAsUnsaved(ProjectWidget *projectWidget)
+{
+    for (int i = 0; i < projectWidgets.size(); i++)
+    {
+        if (projectWidgets[i] == projectWidget)
+        {
+            ui->tabWidget->setTabText(i, QString::fromStdString(projectWidget->getProjectName() + "*"));
+        }
+    }
+}
+
 void WorkSpaceWidget::resizeEvent(QResizeEvent *event)
 {
-//    qDebug() << "Resize event (workspace) " << ui->tabWidget->size();
     for (auto projectWidget : projectWidgets)
     {
         projectWidget->resizeWidget(ui->tabWidget->size().width(), ui->tabWidget->size().height());
@@ -61,7 +79,7 @@ void WorkSpaceWidget::clearElementParameters()
     ui->rightSupCB->setChecked(false);
 }
 
-void WorkSpaceWidget::sendElementParametersToProjectWidget()
+void WorkSpaceWidget::sendElementParametersToProjectWidget(std::vector<int> dataMask)
 {
     int tabIndex = ui->tabWidget->currentIndex();
     if (tabIndex == -1)
@@ -80,60 +98,68 @@ void WorkSpaceWidget::sendElementParametersToProjectWidget()
     elementData.xQForce = ui->qxLE->text().toDouble();
     elementData.hasLeftSupport = ui->leftSupCB->checkState();
     elementData.hasRightSupport = ui->rightSupCB->checkState();
+    elementData.maskInit(dataMask);
 
     projectWidgets[tabIndex]->setSelectedElementsParameters(elementData);
+    markTabAsUnsaved(projectWidgets[tabIndex]);
 }
 
 void WorkSpaceWidget::on_lengthLE_editingFinished()
 {
-    sendElementParametersToProjectWidget();
+    sendElementParametersToProjectWidget(std::vector<int>({0}));
 }
 
 
 void WorkSpaceWidget::on_squareLE_editingFinished()
 {
-    sendElementParametersToProjectWidget();
+    sendElementParametersToProjectWidget(std::vector<int>({1}));
 }
 
 
 void WorkSpaceWidget::on_elasticLE_editingFinished()
 {
-    sendElementParametersToProjectWidget();
+    sendElementParametersToProjectWidget(std::vector<int>({2}));
 }
 
 
 void WorkSpaceWidget::on_stressLE_editingFinished()
 {
-    sendElementParametersToProjectWidget();
+    sendElementParametersToProjectWidget(std::vector<int>({3}));
 }
 
 
 void WorkSpaceWidget::on_xLeftLE_editingFinished()
 {
-    sendElementParametersToProjectWidget();
+    sendElementParametersToProjectWidget(std::vector<int>({4}));
 }
 
 
 void WorkSpaceWidget::on_xRightLE_editingFinished()
 {
-    sendElementParametersToProjectWidget();
+    sendElementParametersToProjectWidget(std::vector<int>({5}));
 }
 
 
 void WorkSpaceWidget::on_qxLE_editingFinished()
 {
-    sendElementParametersToProjectWidget();
+    sendElementParametersToProjectWidget(std::vector<int>({6}));
 }
 
 
 void WorkSpaceWidget::on_leftSupCB_stateChanged(int arg1)
 {
-    sendElementParametersToProjectWidget();
+    sendElementParametersToProjectWidget(std::vector<int>({7}));
 }
 
 
 void WorkSpaceWidget::on_rightSupCB_stateChanged(int arg1)
 {
-    sendElementParametersToProjectWidget();
+    sendElementParametersToProjectWidget(std::vector<int>({8}));
+}
+
+
+void WorkSpaceWidget::on_tabWidget_tabCloseRequested(int index)
+{
+    qDebug() << index;
 }
 

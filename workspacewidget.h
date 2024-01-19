@@ -21,6 +21,8 @@ public:
     explicit WorkSpaceWidget(QWidget *parent = nullptr);
     ~WorkSpaceWidget();
 
+    void addProjectWindow();
+
 private slots:
     void on_lengthLE_editingFinished();
 
@@ -40,13 +42,17 @@ private slots:
 
     void on_rightSupCB_stateChanged(int arg1);
 
+    void on_tabWidget_tabCloseRequested(int index);
+
 private:
     Ui::WorkSpaceWidget *ui;
+
+    void markTabAsUnsaved(ProjectWidget *projectWidget);
 
     void resizeEvent(QResizeEvent *event);
     void setElementParameters(std::vector<SaprElement*> selectedElements);
     void clearElementParameters();
-    void sendElementParametersToProjectWidget();
+    void sendElementParametersToProjectWidget(std::vector<int> dataMask);
 
     std::vector<ProjectWidget*> projectWidgets;
 };

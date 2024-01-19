@@ -1,6 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "menuwidget.h"
+#include "workspacewidget.h"
+
 #include <QMainWindow>
 
 namespace Ui {
@@ -24,6 +27,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    MenuWidget *menuWidget = nullptr;
+    WorkSpaceWidget *workSpaceWidget = nullptr;
 };
 
 #endif // MAINWINDOW_H

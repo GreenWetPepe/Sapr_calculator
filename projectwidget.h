@@ -28,9 +28,13 @@ public:
     void resizeWidget(int width, int height);
     void setSelectedElementsParameters(SaprElementData data);
 
+    std::string getProjectPath();
+    std::string getProjectName();
+
 
 signals:
     void linkSelectedElementsDataWithWidget(std::vector<SaprElement*> selectedElements);
+    void setWidgetAsUnsaved(ProjectWidget *projectWidget);
 
 private slots:
 
@@ -55,13 +59,15 @@ private:
     std::vector<SaprElement*> selectedElements;
     int lastX, lastY;
 
-    int size = 10;
 
     int lastMouseButton = Qt::NoButton;
     bool isLastEventMove = false;
     SaprElement *lastMousePressElement = nullptr;
     bool prevLastMousePressElementSelection = false;
     static std::vector<int> buttonsBuffer;
+
+    std::string projectPath = "";
+    std::string projectName = "untitled.sapr";
 
     void addButtonToBuffer(int button);
     void deleteButtonFromBuffer(int button);

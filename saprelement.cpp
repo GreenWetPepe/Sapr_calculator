@@ -280,15 +280,15 @@ int SaprElement::checkForConnection(SaprElement *element)
 
 void SaprElement::setData(SaprElementData data)
 {
-    setLength(data.length);
-    setSquare(data.square);
-    setElasticModulus(data.elasticModulus);
-    setPermissibleStress(data.permissibleStress);
-    setXQForce(data.xQForce);
-    setLeftForce(data.xLeftForce);
-    setRightForce(data.xRightForce);
-    setLeftSupport(data.hasLeftSupport);
-    setRightSupport(data.hasRightSupport);
+    if (data.dataMask[0]) setLength(data.length);
+    if (data.dataMask[1]) setSquare(data.square);
+    if (data.dataMask[2]) setElasticModulus(data.elasticModulus);
+    if (data.dataMask[3]) setPermissibleStress(data.permissibleStress);
+    if (data.dataMask[4]) setLeftForce(data.xLeftForce);
+    if (data.dataMask[5]) setRightForce(data.xRightForce);
+    if (data.dataMask[6]) setXQForce(data.xQForce);
+    if (data.dataMask[7]) setLeftSupport(data.hasLeftSupport);
+    if (data.dataMask[8]) setRightSupport(data.hasRightSupport);
 }
 
 SaprElementData SaprElement::getData()

@@ -44,7 +44,6 @@ public:
     std::vector<SaprElement*> elements;
 
 private:
-    std::string projectPath = (QDir::homePath()).toStdString() + "untitled.sapr";
     int windowWidth, windowHeight;
 
     const double minSizeMult = 0.4;
