@@ -27,14 +27,26 @@
     <property name="title">
      <string>Файл</string>
     </property>
-    <addaction name="action"/>
+    <addaction name="createProjectAction"/>
+    <addaction name="openProjectAction"/>
+    <addaction name="saveProjectAction"/>
    </widget>
    <addaction name="menu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="action">
+  <action name="createProjectAction">
    <property name="text">
     <string>Создать проект</string>
+   </property>
+  </action>
+  <action name="openProjectAction">
+   <property name="text">
+    <string>Открыть проект</string>
+   </property>
+  </action>
+  <action name="saveProjectAction">
+   <property name="text">
+    <string>Сохранить</string>
    </property>
   </action>
  </widget>

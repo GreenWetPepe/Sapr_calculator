@@ -253,7 +253,7 @@ void SaprElement::correctPosToLinkedElement()
 {
     if (!rightConnectedElement) return;
     rightConnectedElement->x = x + width;
-    rightConnectedElement->y = y + height / 2 - rightConnectedElement->height / 2;
+    rightConnectedElement->y = y + (height - rightConnectedElement->height) / 2;
 }
 
 int SaprElement::checkForConnection(SaprElement *element)
