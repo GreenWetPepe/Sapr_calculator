@@ -45,21 +45,17 @@ void MainWindow::on_createProjectAction_triggered()
 
 void MainWindow::on_openProjectAction_triggered()
 {
-//    QString filePath =  QFileDialog::getOpenFileName(this, "Выберите файл", QDir::homePath(), "SAPR-проект (*.sapr)");
-//    if (FileHandler::openProject(filePath.toStdString()))
-//    {
-//        workSpace.elements = FileHandler::readElements;
-//        workSpace.correctLinkedElementsPos();
-//        workSpace.autoSizeElements();
-//    }
-//    CalculationProducer::dropCalculation();
-//    qDebug() << filePath;
-//    update();
+    if (centralWidget() != workSpaceWidget)
+    {
+        stackedWidget.setCurrentWidget(workSpaceWidget);
+    }
+    workSpaceWidget->addProjectWindow();
+    workSpaceWidget->openProject();
 }
 
 
 void MainWindow::on_saveProjectAction_triggered()
 {
-//    FileHandler::saveProject(workSpace.elements);
+    workSpaceWidget->saveProject();
 }
 

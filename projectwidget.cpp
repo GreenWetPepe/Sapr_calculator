@@ -3,9 +3,11 @@
 
 #include <QDebug>
 #include <QKeyEvent>
-#include <random>
 #include <QDesktopServices>
 #include <QDir>
+
+#include <random>
+#include <algorithm>
 
 std::vector<int> ProjectWidget::buttonsBuffer;
 
@@ -65,12 +67,13 @@ void ProjectWidget::on_addSegment_clicked()
 {
     workSpace.addElement(new SaprElement());
     workSpace.autoSizeElements();
+    saved = false;
+    emit setTabWidgetStateName(this, saved);
     update();
 }
 
 void ProjectWidget::keyPressEvent(QKeyEvent *event)
 {
-    qDebug() << event->key();
     if (event->key() == Qt::Key_W) workSpace.moveElements(0, -20);
     if (event->key() == Qt::Key_S) workSpace.moveElements(0, 20);
     if (event->key() == Qt::Key_A) workSpace.moveElements(-20, 0);
@@ -90,12 +93,10 @@ void ProjectWidget::keyPressEvent(QKeyEvent *event)
             lastElement->move(-150, -150);
             workSpace.checkForConnections(lastElement);
         }
-        qDebug() << workSpace.elements.size() << " " << selectedElements.size();
         int size = selectedElements.size();
         clearSelectedElements();
         for (int i = workSpace.elements.size() - 1; i >= workSpace.elements.size() - size; i--)
         {
-            qDebug() << i;
             selectedElements.push_back(workSpace.elements[i]);
         }
         qDebug() << selectedElements.size();
@@ -304,18 +305,53 @@ void ProjectWidget::save()
 {
     if (projectPath.empty())
     {
-        QString standartFileName = QString::fromStdString(projectName);
+        QString standartFileName = "";
         QString filePath = QFileDialog::getSaveFileName(this, "Создать файл", QDir::homePath(), "SAPR-проект (*.sapr);;Все файлы (*.*)", &standartFileName);
         if (filePath == "") return;
         FileHandler::createFile(filePath.toStdString());
+        changeProjectPathAndName(filePath.toStdString());
         update();
     }
     else
     {
-        FileHandler::saveProject(workSpace.elements);
+        FileHandler::saveProject(projectPath, workSpace.elements);
     }
     saved = true;
     emit setTabWidgetStateName(this, saved);
+}
+
+void ProjectWidget::openProject()
+{
+
+    QString filePath = QFileDialog::getOpenFileName(this, "Выберите файл", QDir::homePath(), "SAPR-проект (*.sapr)");
+    if (filePath == "") return;
+    if (FileHandler::openProject(filePath.toStdString()))
+    {
+        changeProjectPathAndName(filePath.toStdString());
+        workSpace.elements = FileHandler::readElements;
+        workSpace.correctLinkedElementsPos();
+        workSpace.autoSizeElements();
+        saved = true;
+        emit setTabWidgetStateName(this, saved);
+        CalculationProducer::dropCalculation();
+    }
+    update();
+}
+
+void ProjectWidget::changeProjectPathAndName(std::string path)
+{
+    projectName = "";
+    projectPath = path;
+    for (int i = path.size() - 1; i >= 0; i--)
+    {
+        if (path[i] == *"/") break;
+        projectName += path[i];
+    }
+
+    std::reverse(projectName.begin(), projectName.end());
+    qDebug() << QString::fromStdString(projectPath);
+    qDebug() << QString::fromStdString(projectName);
+
 }
 
 //void ProjectWidget::on_buildAction_triggered()

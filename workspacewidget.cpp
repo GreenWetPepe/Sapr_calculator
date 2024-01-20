@@ -24,6 +24,23 @@ void WorkSpaceWidget::addProjectWindow()
             this, &WorkSpaceWidget::setElementParameters);
     connect(projectWidgets.back(), &ProjectWidget::setTabWidgetStateName,
             this, &WorkSpaceWidget::markTabAsSaveState);
+    ui->tabWidget->setCurrentWidget(projectWidgets.back());
+}
+
+void WorkSpaceWidget::openProject()
+{
+    int index = ui->tabWidget->currentIndex();
+    if (index == -1) return;
+
+    projectWidgets[index]->openProject();
+}
+
+void WorkSpaceWidget::saveProject()
+{
+    int index = ui->tabWidget->currentIndex();
+    if (index == -1) return;
+
+    projectWidgets[index]->save();
 }
 
 void WorkSpaceWidget::markTabAsSaveState(ProjectWidget *projectWidget, bool isSaved)

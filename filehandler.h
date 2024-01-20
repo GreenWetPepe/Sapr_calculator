@@ -12,10 +12,9 @@ class FileHandler
 public:
     FileHandler();
 
-    static void setFilePath(std::string path);
     static bool openProject(std::string path);
     static void createFile(std::string path);
-    static void saveProject(std::vector<SaprElement*> elements);
+    static void saveProject(std::string path, std::vector<SaprElement*> elements);
 
     static std::vector<SaprElement*> readElements;
 

@@ -23,6 +23,9 @@ public:
 
     void addProjectWindow();
 
+    void openProject();
+    void saveProject();
+
 signals:
     void changeMainWindowCentailWidgetToMenu();
 

@@ -32,6 +32,7 @@ public:
     std::string getProjectName();
     bool isSaved();
     void save();
+    void openProject();
 
 
 signals:
@@ -41,12 +42,6 @@ signals:
 private slots:
 
     void on_addSegment_clicked();
-
-//    void on_create_triggered();
-
-//    void on_open_triggered();
-
-//    void on_save_triggered();
 
 //    void on_buildAction_triggered();
 
@@ -76,6 +71,7 @@ private:
     void deleteButtonFromBuffer(int button);
 
     void clearSelectedElements();
+    void changeProjectPathAndName(std::string path);
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
