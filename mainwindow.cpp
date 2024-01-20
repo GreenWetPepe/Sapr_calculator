@@ -15,7 +15,12 @@ MainWindow::MainWindow(QWidget *parent) :
     menuWidget = new MenuWidget();
     workSpaceWidget = new WorkSpaceWidget();
 
-    setCentralWidget(menuWidget);
+    connect(workSpaceWidget, &WorkSpaceWidget::changeMainWindowCentailWidgetToMenu, this, &MainWindow::changeWidgetToMenuWidget);
+    stackedWidget.addWidget(menuWidget);
+    stackedWidget.addWidget(workSpaceWidget);
+    stackedWidget.setCurrentWidget(menuWidget);
+
+    setCentralWidget(&stackedWidget);
 }
 
 MainWindow::~MainWindow()
@@ -23,21 +28,18 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::changeWidgetToMenuWidget()
+{
+    stackedWidget.setCurrentWidget(menuWidget);
+}
+
 void MainWindow::on_createProjectAction_triggered()
 {
     if (centralWidget() != workSpaceWidget)
     {
-        setCentralWidget(workSpaceWidget);
+        stackedWidget.setCurrentWidget(workSpaceWidget);
     }
     workSpaceWidget->addProjectWindow();
-//    QString standartFileName = "";
-//    QString filePath = QFileDialog::getSaveFileName(this, "Создать файл", QDir::homePath(), "SAPR-проект (*.sapr);;Все файлы (*.*)", &standartFileName);
-//    CalculationProducer::dropCalculation();
-//    FileHandler::createFile(filePath.toStdString());
-//    workSpace.elements.clear();
-//    qDebug() << filePath;
-//    update();
-
 }
 
 

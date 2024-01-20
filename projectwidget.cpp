@@ -76,6 +76,11 @@ void ProjectWidget::keyPressEvent(QKeyEvent *event)
     if (event->key() == Qt::Key_A) workSpace.moveElements(-20, 0);
     if (event->key() == Qt::Key_D) workSpace.moveElements(20, 0);
 
+    if (event->key() == Qt::Key_S && buttonsBuffer.size() == 1 && buttonsBuffer[0] == Qt::Key_Control)
+    {
+        save();
+    }
+
     if (event->key() == Qt::Key_V)
     {
         for (auto el : selectedElements)
@@ -234,7 +239,8 @@ void ProjectWidget::mouseReleaseEvent(QMouseEvent *event)
             for (auto el : selectedElements)
             {
                 workSpace.checkForConnections(el);
-                emit setWidgetAsUnsaved(this);
+                saved = false;
+                emit setTabWidgetStateName(this, saved);
             }
             emit linkSelectedElementsDataWithWidget(selectedElements);
         }
@@ -264,6 +270,8 @@ void ProjectWidget::setSelectedElementsParameters(SaprElementData data)
     }
     workSpace.autoSizeElements();
     update();
+    saved = false;
+    emit setTabWidgetStateName(this, saved);
     emit linkSelectedElementsDataWithWidget(selectedElements);
 }
 
@@ -277,38 +285,28 @@ std::string ProjectWidget::getProjectName()
     return projectName;
 }
 
-//void ProjectWidget::on_create_triggered()
-//{
-//    QString standartFileName = "";
-//    QString filePath = QFileDialog::getSaveFileName(this, "Создать файл", QDir::homePath(), "SAPR-проект (*.sapr);;Все файлы (*.*)", &standartFileName);
-//    CalculationProducer::dropCalculation();
-//    FileHandler::createFile(filePath.toStdString());
-//    workSpace.elements.clear();
-//    qDebug() << filePath;
-//    update();
-//}
+bool ProjectWidget::isSaved()
+{
+    return saved;
+}
 
-
-//void ProjectWidget::on_open_triggered()
-//{
-//    QString filePath =  QFileDialog::getOpenFileName(this, "Выберите файл", QDir::homePath(), "SAPR-проект (*.sapr)");
-//    if (FileHandler::openProject(filePath.toStdString()))
-//    {
-//        workSpace.elements = FileHandler::readElements;
-//        workSpace.correctLinkedElementsPos();
-//        workSpace.autoSizeElements();
-//    }
-//    CalculationProducer::dropCalculation();
-//    qDebug() << filePath;
-//    update();
-//}
-
-
-//void ProjectWidget::on_save_triggered()
-//{
-//    FileHandler::saveProject(workSpace.elements);
-//}
-
+void ProjectWidget::save()
+{
+    if (projectPath.empty())
+    {
+        QString standartFileName = QString::fromStdString(projectName);
+        QString filePath = QFileDialog::getSaveFileName(this, "Создать файл", QDir::homePath(), "SAPR-проект (*.sapr);;Все файлы (*.*)", &standartFileName);
+        if (filePath == "") return;
+        FileHandler::createFile(filePath.toStdString());
+        update();
+    }
+    else
+    {
+        FileHandler::saveProject(workSpace.elements);
+    }
+    saved = true;
+    emit setTabWidgetStateName(this, saved);
+}
 
 //void ProjectWidget::on_buildAction_triggered()
 //{

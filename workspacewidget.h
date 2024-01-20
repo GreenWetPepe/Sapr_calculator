@@ -23,6 +23,9 @@ public:
 
     void addProjectWindow();
 
+signals:
+    void changeMainWindowCentailWidgetToMenu();
+
 private slots:
     void on_lengthLE_editingFinished();
 
@@ -47,7 +50,7 @@ private slots:
 private:
     Ui::WorkSpaceWidget *ui;
 
-    void markTabAsUnsaved(ProjectWidget *projectWidget);
+    void markTabAsSaveState(ProjectWidget *projectWidget, bool isSaved);
 
     void resizeEvent(QResizeEvent *event);
     void setElementParameters(std::vector<SaprElement*> selectedElements);

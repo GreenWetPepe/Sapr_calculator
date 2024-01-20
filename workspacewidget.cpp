@@ -22,17 +22,24 @@ void WorkSpaceWidget::addProjectWindow()
     projectWidgets.back()->resizeWidget(ui->tabWidget->size().width(), ui->tabWidget->size().height());
     connect(projectWidgets.back(), &ProjectWidget::linkSelectedElementsDataWithWidget,
             this, &WorkSpaceWidget::setElementParameters);
-    connect(projectWidgets.back(), &ProjectWidget::setWidgetAsUnsaved,
-            this, &WorkSpaceWidget::markTabAsUnsaved);
+    connect(projectWidgets.back(), &ProjectWidget::setTabWidgetStateName,
+            this, &WorkSpaceWidget::markTabAsSaveState);
 }
 
-void WorkSpaceWidget::markTabAsUnsaved(ProjectWidget *projectWidget)
+void WorkSpaceWidget::markTabAsSaveState(ProjectWidget *projectWidget, bool isSaved)
 {
     for (int i = 0; i < projectWidgets.size(); i++)
     {
         if (projectWidgets[i] == projectWidget)
         {
-            ui->tabWidget->setTabText(i, QString::fromStdString(projectWidget->getProjectName() + "*"));
+            if (!isSaved)
+            {
+                ui->tabWidget->setTabText(i, QString::fromStdString(projectWidget->getProjectName() + "*"));
+            }
+            else
+            {
+                ui->tabWidget->setTabText(i, QString::fromStdString(projectWidget->getProjectName()));
+            }
         }
     }
 }
@@ -101,7 +108,22 @@ void WorkSpaceWidget::sendElementParametersToProjectWidget(std::vector<int> data
     elementData.maskInit(dataMask);
 
     projectWidgets[tabIndex]->setSelectedElementsParameters(elementData);
-    markTabAsUnsaved(projectWidgets[tabIndex]);
+}
+
+void WorkSpaceWidget::on_tabWidget_tabCloseRequested(int index)
+{
+    if (!projectWidgets[index]->isSaved())
+    {
+        projectWidgets[index]->save();
+    }
+
+    delete projectWidgets[index];
+    projectWidgets.erase(projectWidgets.begin() + index);
+    ui->tabWidget->removeTab(index);
+    if (ui->tabWidget->currentIndex() == -1)
+    {
+        emit changeMainWindowCentailWidgetToMenu();
+    }
 }
 
 void WorkSpaceWidget::on_lengthLE_editingFinished()
@@ -155,11 +177,5 @@ void WorkSpaceWidget::on_leftSupCB_stateChanged(int arg1)
 void WorkSpaceWidget::on_rightSupCB_stateChanged(int arg1)
 {
     sendElementParametersToProjectWidget(std::vector<int>({8}));
-}
-
-
-void WorkSpaceWidget::on_tabWidget_tabCloseRequested(int index)
-{
-    qDebug() << index;
 }
 

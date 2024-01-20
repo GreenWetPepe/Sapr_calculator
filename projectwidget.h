@@ -30,11 +30,13 @@ public:
 
     std::string getProjectPath();
     std::string getProjectName();
+    bool isSaved();
+    void save();
 
 
 signals:
     void linkSelectedElementsDataWithWidget(std::vector<SaprElement*> selectedElements);
-    void setWidgetAsUnsaved(ProjectWidget *projectWidget);
+    void setTabWidgetStateName(ProjectWidget *projectWidget, bool isSaved);
 
 private slots:
 
@@ -68,6 +70,7 @@ private:
 
     std::string projectPath = "";
     std::string projectName = "untitled.sapr";
+    bool saved = true;
 
     void addButtonToBuffer(int button);
     void deleteButtonFromBuffer(int button);

@@ -5,6 +5,7 @@
 #include "workspacewidget.h"
 
 #include <QMainWindow>
+#include <QStackedWidget>
 
 namespace Ui {
 class MainWindow;
@@ -30,6 +31,9 @@ private:
 
     MenuWidget *menuWidget = nullptr;
     WorkSpaceWidget *workSpaceWidget = nullptr;
+    QStackedWidget stackedWidget;
+
+    void changeWidgetToMenuWidget();
 };
 
 #endif // MAINWINDOW_H

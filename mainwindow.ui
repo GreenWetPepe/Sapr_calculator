@@ -31,7 +31,14 @@
     <addaction name="openProjectAction"/>
     <addaction name="saveProjectAction"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Сборка</string>
+    </property>
+    <addaction name="action"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="createProjectAction">
@@ -47,6 +54,11 @@
   <action name="saveProjectAction">
    <property name="text">
     <string>Сохранить</string>
+   </property>
+  </action>
+  <action name="action">
+   <property name="text">
+    <string>Расчёт конструкции</string>
    </property>
   </action>
  </widget>
