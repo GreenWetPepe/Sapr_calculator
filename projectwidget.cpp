@@ -81,14 +81,24 @@ void ProjectWidget::keyPressEvent(QKeyEvent *event)
         save();
     }
 
-    if (event->key() == Qt::Key_V)
+    if (event->key() == Qt::Key_V && buttonsBuffer.size() == 1 && buttonsBuffer[0] == Qt::Key_Control)
     {
         for (auto el : selectedElements)
         {
             workSpace.addElement(new SaprElement(*el));
             auto lastElement = workSpace.elements.back();
-            lastElement->move(-100, -100);
+            lastElement->move(-150, -150);
+            workSpace.checkForConnections(lastElement);
         }
+        qDebug() << workSpace.elements.size() << " " << selectedElements.size();
+        int size = selectedElements.size();
+        clearSelectedElements();
+        for (int i = workSpace.elements.size() - 1; i >= workSpace.elements.size() - size; i--)
+        {
+            qDebug() << i;
+            selectedElements.push_back(workSpace.elements[i]);
+        }
+        qDebug() << selectedElements.size();
     }
 
     if (event->key() == Qt::Key_Escape)
