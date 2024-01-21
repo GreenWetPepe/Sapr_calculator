@@ -18,8 +18,6 @@ public:
 
     static void dropCalculation();
 
-    static bool isReady();
-
 private:
     static std::vector<std::vector<double>> matrixA;
     static std::vector<double> matrixB;

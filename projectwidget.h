@@ -34,6 +34,8 @@ public:
     void save();
     void openProject();
 
+    void calcGraph();
+
 
 signals:
     void linkSelectedElementsDataWithWidget(std::vector<SaprElement*> selectedElements);
@@ -55,6 +57,7 @@ private:
     WorkSpace workSpace;
     std::vector<SaprElement*> selectedElements;
     int lastX, lastY;
+    int nowMouseMoveEventCall = 0;
 
 
     int lastMouseButton = Qt::NoButton;

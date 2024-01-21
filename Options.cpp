@@ -5,7 +5,7 @@ namespace options
     namespace saprElement
     {
         static double sizeMultiply = 1;
-        static double paramIndentMultiply = 0.7;
+        static double paramIndentMultiply = 0.6;
 
         static const int qForceArrowIndent = 10;
         static const int xQForceArrowIndent = 7, yQForceArrowIndent = 5;
@@ -19,7 +19,7 @@ namespace options
     namespace diagram
     {
         static double diagramSizeMultiply = 1.2;
-        static double diagramIndentMultiply = 0.6;
+        static double diagramIndentMultiply = 0.8;
 
         static double nXIndent = saprElement::paramIndentMultiply + diagramIndentMultiply + diagramSizeMultiply;
         static double uXIndent = saprElement::paramIndentMultiply + 2 * (diagramIndentMultiply + diagramSizeMultiply);
@@ -42,5 +42,7 @@ namespace options
         static const double maxElementWidthRelationToWindow = 0.3;
         static const double minElementHeightRelationToMaxHeight = 0.35;
         static const double minElementWidthRelationToMaxWidth = 0.35;
+
+        static const int mouseMoveEventCallForStartMoveElement = 8;
     }
 }

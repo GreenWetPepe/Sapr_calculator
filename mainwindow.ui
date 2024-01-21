@@ -35,7 +35,7 @@
     <property name="title">
      <string>Сборка</string>
     </property>
-    <addaction name="action"/>
+    <addaction name="calcConstructAction"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -56,7 +56,7 @@
     <string>Сохранить</string>
    </property>
   </action>
-  <action name="action">
+  <action name="calcConstructAction">
    <property name="text">
     <string>Расчёт конструкции</string>
    </property>

@@ -49,6 +49,8 @@ private:
     const double minSizeMult = 0.4;
 
     double sizeMult = 1;
+
+    std::vector<std::vector<std::vector<double>>> calculation;
 };
 
 #endif // WORKSPACE_H

@@ -175,25 +175,20 @@ void SaprElement::drawDiagram(QPainter &painter, std::vector<double> points, int
 
     if (!leftConnectedElement)
     {
-        painter.drawText(QPoint(x - 25, y + height / 2 + maxHeight * options::diagram::nXIndent -
+        painter.drawText(QPoint(x - 25, y + height / 2 + maxHeight * indent -
                                             (0 - minVal) / (pointsDelt) *
                                                 maxHeight * options::diagram::diagramSizeMultiply), QString::fromStdString(label));
     }
-
-//    painter.setPen(Qt::green); // Draw diagrams border
-//    painter.drawRect(x, y + height / 2 + maxHeight * indent, width, maxHeight * diagramSizeMultiply);
-//    painter.setPen(Qt::black);
-
-    for (int i = 0; i <= points.size(); i++)
+    for (int i = 0; i < points.size(); i++)
     {
-        painter.drawPoint(x + width / points.size() * i, y + height / 2 + maxHeight * indent - (points[i] - minVal) /
+        painter.drawPoint(x + width / (points.size() - 1) * i, y + height / 2 + maxHeight * indent - (points[i] - minVal) /
                                                                             pointsDelt * maxHeight * options::diagram::diagramSizeMultiply);
 
         if (i % 60 == 0)
         {
-            painter.drawLine(x + width / points.size() * i, y + height / 2 + maxHeight * indent -
+            painter.drawLine(x + width / (points.size() - 1) * i, y + height / 2 + maxHeight * indent -
                                                        (points[i] - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply,
-                             x + width / points.size() * i, y + height / 2 + maxHeight * indent -
+                             x + width / (points.size() - 1) * i, y + height / 2 + maxHeight * indent -
                                                         (0 - minVal) / pointsDelt * maxHeight * options::diagram::diagramSizeMultiply);
         }
     }

@@ -8,6 +8,7 @@ WorkSpaceWidget::WorkSpaceWidget(QWidget *parent) :
     ui(new Ui::WorkSpaceWidget)
 {
     ui->setupUi(this);
+    changeLineEditBlockSignal(false);
 }
 
 WorkSpaceWidget::~WorkSpaceWidget()
@@ -41,6 +42,14 @@ void WorkSpaceWidget::saveProject()
     if (index == -1) return;
 
     projectWidgets[index]->save();
+}
+
+void WorkSpaceWidget::calcProject()
+{
+    int index = ui->tabWidget->currentIndex();
+    if (index == -1) return;
+
+    projectWidgets[index]->calcGraph();
 }
 
 void WorkSpaceWidget::markTabAsSaveState(ProjectWidget *projectWidget, bool isSaved)
@@ -79,6 +88,8 @@ void WorkSpaceWidget::setElementParameters(std::vector<SaprElement*> selectedEle
         return;
     }
     SaprElement *el = selectedElements.back();
+    changeLineEditEnable(true);
+    changeLineEditBlockSignal(true);
     ui->lengthLE->setText(QString::number(el->getLength()));
     ui->squareLE->setText(QString::number(el->getSquare()));
     ui->elasticLE->setText(QString::number(el->getElasticModulus()));
@@ -88,10 +99,12 @@ void WorkSpaceWidget::setElementParameters(std::vector<SaprElement*> selectedEle
     ui->qxLE->setText(QString::number(el->getXQForce()));
     ui->leftSupCB->setChecked(el->hasLeftSupport());
     ui->rightSupCB->setChecked(el->hasRightSupport());
+    changeLineEditBlockSignal(false);
 }
 
 void WorkSpaceWidget::clearElementParameters()
 {
+    changeLineEditBlockSignal(true);
     ui->lengthLE->setText(QString(""));
     ui->squareLE->setText(QString(""));
     ui->elasticLE->setText(QString(""));
@@ -101,6 +114,34 @@ void WorkSpaceWidget::clearElementParameters()
     ui->qxLE->setText(QString(""));
     ui->leftSupCB->setChecked(false);
     ui->rightSupCB->setChecked(false);
+    changeLineEditBlockSignal(false);
+    changeLineEditEnable(false);
+}
+
+void WorkSpaceWidget::changeLineEditBlockSignal(bool block)
+{
+    ui->lengthLE->blockSignals(block);
+    ui->squareLE->blockSignals(block);
+    ui->elasticLE->blockSignals(block);
+    ui->stressLE->blockSignals(block);
+    ui->xLeftLE->blockSignals(block);
+    ui->xRightLE->blockSignals(block);
+    ui->qxLE->blockSignals(block);
+    ui->leftSupCB->blockSignals(block);
+    ui->rightSupCB->blockSignals(block);
+}
+
+void WorkSpaceWidget::changeLineEditEnable(bool isEnable)
+{
+    ui->lengthLE->setEnabled(isEnable);
+    ui->squareLE->setEnabled(isEnable);
+    ui->elasticLE->setEnabled(isEnable);
+    ui->stressLE->setEnabled(isEnable);
+    ui->xLeftLE->setEnabled(isEnable);
+    ui->xRightLE->setEnabled(isEnable);
+    ui->qxLE->setEnabled(isEnable);
+    ui->leftSupCB->setEnabled(isEnable);
+    ui->rightSupCB->setEnabled(isEnable);
 }
 
 void WorkSpaceWidget::sendElementParametersToProjectWidget(std::vector<int> dataMask)
@@ -145,54 +186,63 @@ void WorkSpaceWidget::on_tabWidget_tabCloseRequested(int index)
 
 void WorkSpaceWidget::on_lengthLE_editingFinished()
 {
+    ui->tabWidget->currentWidget()->setFocus();
     sendElementParametersToProjectWidget(std::vector<int>({0}));
 }
 
 
 void WorkSpaceWidget::on_squareLE_editingFinished()
 {
+    ui->tabWidget->currentWidget()->setFocus();
     sendElementParametersToProjectWidget(std::vector<int>({1}));
 }
 
 
 void WorkSpaceWidget::on_elasticLE_editingFinished()
 {
+    ui->tabWidget->currentWidget()->setFocus();
     sendElementParametersToProjectWidget(std::vector<int>({2}));
 }
 
 
 void WorkSpaceWidget::on_stressLE_editingFinished()
 {
+    ui->tabWidget->currentWidget()->setFocus();
     sendElementParametersToProjectWidget(std::vector<int>({3}));
 }
 
 
 void WorkSpaceWidget::on_xLeftLE_editingFinished()
 {
+    ui->tabWidget->currentWidget()->setFocus();
     sendElementParametersToProjectWidget(std::vector<int>({4}));
 }
 
 
 void WorkSpaceWidget::on_xRightLE_editingFinished()
 {
+    ui->tabWidget->currentWidget()->setFocus();
     sendElementParametersToProjectWidget(std::vector<int>({5}));
 }
 
 
 void WorkSpaceWidget::on_qxLE_editingFinished()
 {
+    ui->tabWidget->currentWidget()->setFocus();
     sendElementParametersToProjectWidget(std::vector<int>({6}));
 }
 
 
 void WorkSpaceWidget::on_leftSupCB_stateChanged(int arg1)
 {
+    ui->tabWidget->currentWidget()->setFocus();
     sendElementParametersToProjectWidget(std::vector<int>({7}));
 }
 
 
 void WorkSpaceWidget::on_rightSupCB_stateChanged(int arg1)
 {
+    ui->tabWidget->currentWidget()->setFocus();
     sendElementParametersToProjectWidget(std::vector<int>({8}));
 }
 

@@ -26,6 +26,8 @@ private slots:
 
     void on_saveProjectAction_triggered();
 
+    void on_calcConstructAction_triggered();
+
 private:
     Ui::MainWindow *ui;
 

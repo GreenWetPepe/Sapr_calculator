@@ -50,26 +50,24 @@ void WorkSpace::drawSupports(QPainter &painter, int maxHeight)
 
 void WorkSpace::drawDiagram(QPainter &painter)
 {
-    if (!CalculationProducer::isReady()) return;
+    if (calculation.empty()) return;
     SaprElement *firstElement = getFirstLinkedElement();
     int maxHeight = getMaxHeight();
-
-    std::vector<std::vector<std::vector<double>>> res = CalculationProducer::calcResults(firstElement);
 
     double minNx = 0, maxNx = 0;
     double minUx = 0, maxUx = 0;
     double minSx = 0, maxSx = 0;
 
-    for (auto calc : res)
+    for (auto calc : calculation)
     {
         for (int i = 0; i < calc[0].size(); i++)
         {
             if (minNx > calc[0][i]) minNx = calc[0][i];
-            if (maxNx > calc[0][i]) maxNx = calc[0][i];
+            if (maxNx < calc[0][i]) maxNx = calc[0][i];
             if (minUx > calc[1][i]) minUx = calc[1][i];
-            if (maxUx > calc[1][i]) maxUx = calc[1][i];
+            if (maxUx < calc[1][i]) maxUx = calc[1][i];
             if (minSx > calc[2][i]) minSx = calc[2][i];
-            if (maxSx > calc[2][i]) maxSx = calc[2][i];
+            if (maxSx < calc[2][i]) maxSx = calc[2][i];
         }
     }
 
@@ -78,9 +76,9 @@ void WorkSpace::drawDiagram(QPainter &painter)
     while (el != nullptr)
     {
 
-        el->drawDiagram(painter, res[i][0], maxHeight, minNx, maxNx, options::diagram::nXIndent, "Nx");
-        el->drawDiagram(painter, res[i][1], maxHeight, minUx, maxUx, options::diagram::uXIndent, "Ux");
-        el->drawDiagram(painter, res[i][2], maxHeight, minSx, maxSx, options::diagram::sXIndent, "Sx");
+        el->drawDiagram(painter, calculation[i][0], maxHeight, minNx, maxNx, options::diagram::nXIndent, "Nx");
+        el->drawDiagram(painter, calculation[i][1], maxHeight, minUx, maxUx, options::diagram::uXIndent, "Ux");
+        el->drawDiagram(painter, calculation[i][2], maxHeight, minSx, maxSx, options::diagram::sXIndent, "Sx");
         el = el->getRightConnectedElement();
         i++;
     }
@@ -103,7 +101,7 @@ SaprElement* WorkSpace::getFirstLinkedElement()
 {
     for (auto el : elements)
     {
-        if (!el->getRightConnectedElement())
+        if (!el->getLeftConnectedElement())
         {
             return el;
         }
@@ -188,12 +186,14 @@ bool WorkSpace::checkSystemReadiness()
 void WorkSpace::calc()
 {
     if (!checkSystemReadiness()) return;
+    CalculationProducer::dropCalculation();
     CalculationProducer::calculateArguments(elements);
+    calculation = CalculationProducer::calcResults(getFirstLinkedElement());
 }
 
 void WorkSpace::dropCalc()
 {
-    CalculationProducer::dropCalculation();
+    calculation.clear();
 }
 
 void WorkSpace::autoSizeElements()

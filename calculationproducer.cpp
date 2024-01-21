@@ -112,7 +112,7 @@ void CalculationProducer::calcDelt()
     }
 
     matrixDelt.clear();
-    matrixDelt.reserve(size);
+    matrixDelt.resize(size);
     for (int i = 0; i < size - 1; i++)
     {
         if (matrixA[i + 1][i] != 0)
@@ -122,7 +122,6 @@ void CalculationProducer::calcDelt()
             tempB[i + 1] -= tempB[i] * (matrixA[i + 1][i] / tempA[i][i]);
         }
     }
-
     for (int i = size - 1; i > 0; i--)
     {
         matrixDelt[i] = tempB[i] / tempA[i][i];
@@ -158,11 +157,11 @@ std::vector<std::vector<std::vector<double>>> CalculationProducer::calcResults(S
         for (int j = 0; j < options::diagram::pointsCount; j++)
         {
             res.back()[0].push_back((el->getElasticModulus() * el->getSquare() / el->getLength()) * (matrixDelt[i + 1] - matrixDelt[i]) +
-                                (el->getXQForce() * el->getLength() / 2) * (1 - 2 * (double(j) / options::diagram::pointsCount)));
-            res.back()[1].push_back(matrixDelt[i] + (double(j) / options::diagram::pointsCount) * (matrixDelt[i + 1] - matrixDelt[i]) +
+                        (el->getXQForce() * el->getLength() / 2) * (1 - 2 * (double(j) / (options::diagram::pointsCount - 1))));
+            res.back()[1].push_back(matrixDelt[i] + (double(j) / (options::diagram::pointsCount - 1)) * (matrixDelt[i + 1] - matrixDelt[i]) +
                         el->getXQForce() * el->getLength() * el->getLength() / (2 * el->getElasticModulus() * el->getSquare()) *
-                        (double(j) / options::diagram::pointsCount) *
-                        (1 - (double(j) / options::diagram::pointsCount)));
+                        (double(j) / (options::diagram::pointsCount - 1)) *
+                        (1 - (double(j) / (options::diagram::pointsCount - 1))));
             res.back()[2].push_back(res.back()[0][j] / el->getSquare());
         }
         i++;
@@ -177,9 +176,4 @@ void CalculationProducer::dropCalculation()
     matrixA.clear();
     matrixB.clear();
     matrixDelt.clear();
-}
-
-bool CalculationProducer::isReady()
-{
-    return (matrixA.empty() || matrixB.empty() || matrixDelt.empty()) ? false : true;
 }

@@ -1,6 +1,8 @@
 #include "projectwidget.h"
 #include "ui_projectwidget.h"
 
+#include "Options.cpp"
+
 #include <QDebug>
 #include <QKeyEvent>
 #include <QDesktopServices>
@@ -74,57 +76,62 @@ void ProjectWidget::on_addSegment_clicked()
 
 void ProjectWidget::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_W) workSpace.moveElements(0, -20);
-    if (event->key() == Qt::Key_S) workSpace.moveElements(0, 20);
-    if (event->key() == Qt::Key_A) workSpace.moveElements(-20, 0);
-    if (event->key() == Qt::Key_D) workSpace.moveElements(20, 0);
-
-    if (event->key() == Qt::Key_S && buttonsBuffer.size() == 1 && buttonsBuffer[0] == Qt::Key_Control)
+    if (buttonsBuffer.size() == 1 && buttonsBuffer[0] == Qt::Key_Control)
     {
-        save();
-    }
-
-    if (event->key() == Qt::Key_V && buttonsBuffer.size() == 1 && buttonsBuffer[0] == Qt::Key_Control)
-    {
-        for (auto el : selectedElements)
+        if (event->key() == Qt::Key_S)
         {
-            workSpace.addElement(new SaprElement(*el));
-            auto lastElement = workSpace.elements.back();
-            lastElement->move(-150, -150);
-            workSpace.checkForConnections(lastElement);
+            save();
         }
-        int size = selectedElements.size();
-        clearSelectedElements();
-        for (int i = workSpace.elements.size() - 1; i >= workSpace.elements.size() - size; i--)
-        {
-            selectedElements.push_back(workSpace.elements[i]);
-        }
-        qDebug() << selectedElements.size();
-    }
 
-    if (event->key() == Qt::Key_Escape)
-    {
-        for (auto el : selectedElements)
+        if (event->key() == Qt::Key_V)
         {
-            el->setSelected(false);
+            for (auto el : selectedElements)
+            {
+                workSpace.addElement(new SaprElement(*el));
+                auto lastElement = workSpace.elements.back();
+                lastElement->move(-150, -150);
+                workSpace.checkForConnections(lastElement);
+            }
+            int size = selectedElements.size();
+            clearSelectedElements();
+            for (int i = workSpace.elements.size() - 1; i >= workSpace.elements.size() - size; i--)
+            {
+                selectedElements.push_back(workSpace.elements[i]);
+            }
+            qDebug() << selectedElements.size();
         }
-        selectedElements.clear();
-        emit linkSelectedElementsDataWithWidget(selectedElements);
     }
-
-    if (event->key() == Qt::Key_Delete)
+    else
     {
-        for (auto el : selectedElements)
+        if (event->key() == Qt::Key_W) workSpace.moveElements(0, -20);
+        if (event->key() == Qt::Key_S) workSpace.moveElements(0, 20);
+        if (event->key() == Qt::Key_A) workSpace.moveElements(-20, 0);
+        if (event->key() == Qt::Key_D) workSpace.moveElements(20, 0);
+
+        if (event->key() == Qt::Key_Escape)
         {
-            workSpace.removeElement(el);
+            for (auto el : selectedElements)
+            {
+                el->setSelected(false);
+            }
+            selectedElements.clear();
+            emit linkSelectedElementsDataWithWidget(selectedElements);
         }
-        selectedElements.clear();
-        emit linkSelectedElementsDataWithWidget(selectedElements);
-    }
 
-    if (event->key() == Qt::Key_Control)
-    {
-        addButtonToBuffer(event->key());
+        if (event->key() == Qt::Key_Delete)
+        {
+            for (auto el : selectedElements)
+            {
+                workSpace.removeElement(el);
+            }
+            selectedElements.clear();
+            emit linkSelectedElementsDataWithWidget(selectedElements);
+        }
+
+        if (event->key() == Qt::Key_Control)
+        {
+            addButtonToBuffer(event->key());
+        }
     }
     update();
 }
@@ -144,7 +151,6 @@ void ProjectWidget::wheelEvent(QWheelEvent *event)
 
 void ProjectWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    isLastEventMove = false;
     int deltX = event->x() - lastX, deltY = event->y() - lastY;
     if (deltX != 0 || deltY != 0)
     {
@@ -155,12 +161,21 @@ void ProjectWidget::mouseMoveEvent(QMouseEvent *event)
         }
         else if (lastMouseButton == Qt::LeftButton)
         {
-            for (auto el : selectedElements)
+            nowMouseMoveEventCall++;
+            if (nowMouseMoveEventCall > options::workSpace::mouseMoveEventCallForStartMoveElement && lastMousePressElement)
             {
-                el->move(deltX, deltY);
-                isLastEventMove = true;
+                for (auto el : selectedElements)
+                {
+                    el->move(deltX, deltY);
+                    isLastEventMove = true;
+                }
+                workSpace.dropCalc();
             }
-            workSpace.dropCalc();
+        }
+        else
+        {
+            isLastEventMove = false;
+            nowMouseMoveEventCall = 0;
         }
         lastX = event->x(), lastY = event->y();
     }
@@ -171,6 +186,7 @@ void ProjectWidget::mousePressEvent(QMouseEvent *event)
 {
     lastMousePressElement = nullptr;
     isLastEventMove = false;
+    nowMouseMoveEventCall = 0;
     lastMouseButton = event->button();
     lastX = event->x(), lastY = event->y();
 
@@ -245,7 +261,7 @@ void ProjectWidget::mouseReleaseEvent(QMouseEvent *event)
             }
         }
 
-        if (!selectedElements.empty())
+        if (!selectedElements.empty() && isLastEventMove)
         {
             for (auto el : selectedElements)
             {
@@ -253,7 +269,6 @@ void ProjectWidget::mouseReleaseEvent(QMouseEvent *event)
                 saved = false;
                 emit setTabWidgetStateName(this, saved);
             }
-            emit linkSelectedElementsDataWithWidget(selectedElements);
         }
 
         emit linkSelectedElementsDataWithWidget(selectedElements);
@@ -262,6 +277,7 @@ void ProjectWidget::mouseReleaseEvent(QMouseEvent *event)
 
     lastMouseButton = Qt::NoButton;
     isLastEventMove = false;
+    nowMouseMoveEventCall = 0;
     update();
 }
 
@@ -279,7 +295,9 @@ void ProjectWidget::setSelectedElementsParameters(SaprElementData data)
     {
         selectedElement->setData(data);
     }
+    if (selectedElements.empty()) return;
     workSpace.autoSizeElements();
+    workSpace.dropCalc();
     update();
     saved = false;
     emit setTabWidgetStateName(this, saved);
@@ -349,16 +367,13 @@ void ProjectWidget::changeProjectPathAndName(std::string path)
     }
 
     std::reverse(projectName.begin(), projectName.end());
-    qDebug() << QString::fromStdString(projectPath);
-    qDebug() << QString::fromStdString(projectName);
-
 }
 
-//void ProjectWidget::on_buildAction_triggered()
-//{
-//    workSpace.calc();
-//    update();
-//}
+void ProjectWidget::calcGraph()
+{
+    workSpace.calc();
+    update();
+}
 
 //void ProjectWidget::on_lineEdit_editingFinished()
 //{

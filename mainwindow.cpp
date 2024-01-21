@@ -59,3 +59,9 @@ void MainWindow::on_saveProjectAction_triggered()
     workSpaceWidget->saveProject();
 }
 
+
+void MainWindow::on_calcConstructAction_triggered()
+{
+    workSpaceWidget->calcProject();
+}
+

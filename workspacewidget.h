@@ -26,6 +26,11 @@ public:
     void openProject();
     void saveProject();
 
+    void calcProject();
+
+    void changeLineEditBlockSignal(bool block);
+    void changeLineEditEnable(bool isEnable);
+
 signals:
     void changeMainWindowCentailWidgetToMenu();
 
