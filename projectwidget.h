@@ -27,6 +27,7 @@ public:
 
     void resizeWidget(int width, int height);
     void setSelectedElementsParameters(SaprElementData data);
+    void switchCalcPointWidgetPos();
 
     std::string getProjectPath();
     std::string getProjectName();
@@ -45,11 +46,9 @@ private slots:
 
     void on_addSegment_clicked();
 
-//    void on_buildAction_triggered();
+    void on_pointCalcWindowButton_clicked();
 
-//    void on_lineEdit_editingFinished();
-
-//    void on_showTableAction_triggered();
+    void on_xLE_editingFinished();
 
 private:
     Ui::ProjectWidget *ui;
@@ -69,6 +68,8 @@ private:
     std::string projectPath = "";
     std::string projectName = "untitled.sapr";
     bool saved = true;
+
+    bool isPointCalcWidgetOpen = true;
 
     void addButtonToBuffer(int button);
     void deleteButtonFromBuffer(int button);

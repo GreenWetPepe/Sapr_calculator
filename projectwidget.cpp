@@ -19,6 +19,9 @@ ProjectWidget::ProjectWidget(QWidget *parent) : QWidget(parent), ui(new Ui::Proj
     ui->setupUi(this);
 
     workSpace.setWindowSize(200, 200);
+    switchCalcPointWidgetPos();
+    ui->formWidget->hide();
+    ui->pointCalcWindowButton->hide();
 }
 
 ProjectWidget::~ProjectWidget()
@@ -70,6 +73,8 @@ void ProjectWidget::on_addSegment_clicked()
     workSpace.addElement(new SaprElement());
     workSpace.autoSizeElements();
     saved = false;
+    ui->formWidget->hide();
+    ui->pointCalcWindowButton->hide();
     emit setTabWidgetStateName(this, saved);
     update();
 }
@@ -214,6 +219,7 @@ void ProjectWidget::mousePressEvent(QMouseEvent *event)
                 {
                     lastMousePressElement->setSelected(true);
                     selectedElements.push_back(lastMousePressElement);
+                    ui->label->setText(QString::fromStdString("Введите значение X от 0 до ") + QString::number(selectedElements.back()->getLength()));
                 }
             }
             else
@@ -221,11 +227,13 @@ void ProjectWidget::mousePressEvent(QMouseEvent *event)
                 clearSelectedElements();
                 lastMousePressElement->setSelected(true);
                 selectedElements.push_back(lastMousePressElement);
+                ui->label->setText(QString::fromStdString("Введите значение X от 0 до ") + QString::number(selectedElements.back()->getLength()));
             }
         }
         else
         {
             clearSelectedElements();
+            ui->label->setText(QString::fromStdString("Введите значение X от 0 до ..."));
         }
         emit linkSelectedElementsDataWithWidget(selectedElements);
     }
@@ -257,6 +265,14 @@ void ProjectWidget::mouseReleaseEvent(QMouseEvent *event)
                 {
                     selectedElements[index]->setSelected(false);
                     selectedElements.erase(selectedElements.begin() + index);
+                    if (selectedElements.empty())
+                    {
+                        ui->label->setText(QString::fromStdString("Введите значение X от 0 до ..."));
+                    }
+                    else
+                    {
+                        ui->label->setText(QString::fromStdString("Введите значение X от 0 до ") + QString::number(selectedElements.back()->getLength()));
+                    }
                 }
             }
         }
@@ -266,6 +282,8 @@ void ProjectWidget::mouseReleaseEvent(QMouseEvent *event)
             for (auto el : selectedElements)
             {
                 workSpace.checkForConnections(el);
+                ui->formWidget->hide();
+                ui->pointCalcWindowButton->hide();
                 saved = false;
                 emit setTabWidgetStateName(this, saved);
             }
@@ -284,9 +302,33 @@ void ProjectWidget::mouseReleaseEvent(QMouseEvent *event)
 void ProjectWidget::resizeWidget(int width, int height)
 {
     resize(width, height);
+    QWidget *widget = widget = ui->formWidget;
+    widget->setGeometry(widget->x(), height - widget->height() - 135, widget->width(), widget->height());
+    ui->pointCalcWindowButton->setGeometry(ui->pointCalcWindowButton->x(), height - widget->height() - 135,
+                                           ui->pointCalcWindowButton->width(), ui->pointCalcWindowButton->height());
     workSpace.setWindowSize(width, height);
     workSpace.autoSizeElements();
     update();
+}
+
+void ProjectWidget::switchCalcPointWidgetPos()
+{
+    isPointCalcWidgetOpen = (1 + isPointCalcWidgetOpen) % 2;
+    if (isPointCalcWidgetOpen)
+    {
+        ui->formWidget->setGeometry(0, ui->formWidget->y(), ui->formWidget->width(), ui->formWidget->height());
+        ui->pointCalcWindowButton->setGeometry(ui->formWidget->width(), ui->formWidget->y(),
+                                               ui->pointCalcWindowButton->width(), ui->pointCalcWindowButton->height());
+        ui->pointCalcWindowButton->setText("<");
+    }
+    else
+    {
+        ui->formWidget->setGeometry(ui->formWidget->x() - ui->formWidget->width(),
+                                    ui->formWidget->y(), ui->formWidget->width(), ui->formWidget->height());
+        ui->pointCalcWindowButton->setGeometry(0, ui->formWidget->y(),
+                                               ui->pointCalcWindowButton->width(), ui->pointCalcWindowButton->height());
+        ui->pointCalcWindowButton->setText(">");
+    }
 }
 
 void ProjectWidget::setSelectedElementsParameters(SaprElementData data)
@@ -300,6 +342,8 @@ void ProjectWidget::setSelectedElementsParameters(SaprElementData data)
     workSpace.dropCalc();
     update();
     saved = false;
+    ui->formWidget->hide();
+    ui->pointCalcWindowButton->hide();
     emit setTabWidgetStateName(this, saved);
     emit linkSelectedElementsDataWithWidget(selectedElements);
 }
@@ -326,8 +370,9 @@ void ProjectWidget::save()
         QString standartFileName = "";
         QString filePath = QFileDialog::getSaveFileName(this, "Создать файл", QDir::homePath(), "SAPR-проект (*.sapr);;Все файлы (*.*)", &standartFileName);
         if (filePath == "") return;
-        FileHandler::createFile(filePath.toStdString());
         changeProjectPathAndName(filePath.toStdString());
+        FileHandler::createFile(filePath.toStdString());
+        FileHandler::saveProject(projectPath, workSpace.elements);
         update();
     }
     else
@@ -372,6 +417,11 @@ void ProjectWidget::changeProjectPathAndName(std::string path)
 void ProjectWidget::calcGraph()
 {
     workSpace.calc();
+    if (workSpace.checkSystemReadiness())
+    {
+        ui->formWidget->show();
+        ui->pointCalcWindowButton->show();
+    }
     update();
 }
 
@@ -397,8 +447,26 @@ void ProjectWidget::calcGraph()
 //    labels[2]->setText((QString("nX = ") + QString::number(res[0])));
 //}
 
+void ProjectWidget::on_pointCalcWindowButton_clicked()
+{
+    switchCalcPointWidgetPos();
+}
 
-//void ProjectWidget::on_showTableAction_triggered()
-//{
-//    if (!workSpace.checkSystemReadiness()) return;
-//}
+
+void ProjectWidget::on_xLE_editingFinished()
+{
+    double x = ui->xLE->text().toDouble();
+    if (selectedElements.empty() || !workSpace.checkSystemReadiness()) return;
+    if (x < 0 || x > selectedElements.back()->getLength())
+    {
+        x = 0;
+        ui->xLE->blockSignals(true);
+        ui->xLE->setText(QString::number(x));
+        ui->xLE->blockSignals(false);
+    }
+    std::unique_ptr<double[]> res = CalculationProducer::calcPoint(workSpace.elements, selectedElements.back(), x);
+    ui->nXL->setText((QString("Nx = ") + QString::number(res[0], 'f', 3)));
+    ui->uXL->setText((QString("Ux = ") + QString::number(res[1], 'f', 3)));
+    ui->sXL->setText((QString("Sx = ") + QString::number(res[2], 'f', 3)));
+}
+

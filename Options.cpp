@@ -5,7 +5,7 @@ namespace options
     namespace saprElement
     {
         static double sizeMultiply = 1;
-        static double paramIndentMultiply = 0.6;
+        static double paramIndentMultiply = 0.7;
 
         static const int qForceArrowIndent = 10;
         static const int xQForceArrowIndent = 7, yQForceArrowIndent = 5;

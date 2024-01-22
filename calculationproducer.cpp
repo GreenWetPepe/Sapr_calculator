@@ -15,9 +15,21 @@ CalculationProducer::CalculationProducer()
 
 }
 
-std::unique_ptr<double[]> CalculationProducer::calcPoint(SaprElement *el, int i, double x)
+std::unique_ptr<double[]> CalculationProducer::calcPoint(std::vector<SaprElement*> elements, SaprElement *el, double x)
 {
     std::unique_ptr<double[]> res(new double[3]);
+    calculateArguments(elements);
+    SaprElement *firstElement;
+    for (auto element : elements)
+    {
+        if (!element->getLeftConnectedElement()) firstElement = element;
+    }
+    int i = 0;
+    while (el != firstElement)
+    {
+        firstElement = firstElement->getRightConnectedElement();
+        i++;
+    }
 
     res[0] = (el->getElasticModulus() * el->getSquare() / el->getLength()) * (matrixDelt[i + 1] - matrixDelt[i]) +
              (el->getXQForce() * el->getLength() / 2) * (1 - 2 * (x / el->getLength()));

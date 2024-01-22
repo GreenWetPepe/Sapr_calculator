@@ -14,7 +14,7 @@ public:
     static void calculateArguments(std::vector<SaprElement*>);
     static std::vector<std::vector<std::vector<double>>> calcResults(SaprElement *firstElement);
 
-    static std::unique_ptr<double[]> calcPoint(SaprElement *el, int i, double x);
+    static std::unique_ptr<double[]> calcPoint(std::vector<SaprElement*> elements, SaprElement *el, double x);
 
     static void dropCalculation();
 
