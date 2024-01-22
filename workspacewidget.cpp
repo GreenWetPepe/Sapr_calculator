@@ -52,6 +52,22 @@ void WorkSpaceWidget::calcProject()
     projectWidgets[index]->calcGraph();
 }
 
+void WorkSpaceWidget::createMixMaxTable()
+{
+    int index = ui->tabWidget->currentIndex();
+    if (index == -1) return;
+
+    projectWidgets[index]->createMixMaxTable();
+}
+
+void WorkSpaceWidget::createStressTable()
+{
+    int index = ui->tabWidget->currentIndex();
+    if (index == -1) return;
+
+    projectWidgets[index]->createStressTable();
+}
+
 void WorkSpaceWidget::markTabAsSaveState(ProjectWidget *projectWidget, bool isSaved)
 {
     for (int i = 0; i < projectWidgets.size(); i++)

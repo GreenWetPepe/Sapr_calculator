@@ -35,7 +35,7 @@ void MainWindow::changeWidgetToMenuWidget()
 
 void MainWindow::on_createProjectAction_triggered()
 {
-    if (centralWidget() != workSpaceWidget)
+    if (stackedWidget.currentWidget() != workSpaceWidget)
     {
         stackedWidget.setCurrentWidget(workSpaceWidget);
     }
@@ -45,7 +45,7 @@ void MainWindow::on_createProjectAction_triggered()
 
 void MainWindow::on_openProjectAction_triggered()
 {
-    if (centralWidget() != workSpaceWidget)
+    if (stackedWidget.currentWidget() != workSpaceWidget)
     {
         stackedWidget.setCurrentWidget(workSpaceWidget);
     }
@@ -63,5 +63,23 @@ void MainWindow::on_saveProjectAction_triggered()
 void MainWindow::on_calcConstructAction_triggered()
 {
     workSpaceWidget->calcProject();
+}
+
+
+void MainWindow::on_createMixMaxTableAction_triggered()
+{
+    if (stackedWidget.currentWidget() == workSpaceWidget)
+    {
+        workSpaceWidget->createMixMaxTable();
+    }
+}
+
+
+void MainWindow::on_createStressTableAction_triggered()
+{
+    if (stackedWidget.currentWidget() == workSpaceWidget)
+    {
+        workSpaceWidget->createStressTable();
+    }
 }
 

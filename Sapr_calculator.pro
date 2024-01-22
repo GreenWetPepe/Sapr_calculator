@@ -15,8 +15,10 @@ SOURCES += \
     filehandler.cpp \
     mainwindow.cpp \
     menuwidget.cpp \
+    minmaxtable.cpp \
     projectwidget.cpp \
     saprelement.cpp \
+    stresstable.cpp \
     workspace.cpp \
     workspacewidget.cpp
 
@@ -26,15 +28,19 @@ HEADERS += \
     filehandler.h \
     mainwindow.h \
     menuwidget.h \
+    minmaxtable.h \
     projectwidget.h \
     saprelement.h \
+    stresstable.h \
     workspace.h \
     workspacewidget.h
 
 FORMS += \
     mainwindow.ui \
     menuwidget.ui \
+    minmaxtable.ui \
     projectwidget.ui \
+    stresstable.ui \
     workspacewidget.ui
 
 # Default rules for deployment.

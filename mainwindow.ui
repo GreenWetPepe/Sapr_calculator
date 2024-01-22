@@ -36,6 +36,8 @@
      <string>Сборка</string>
     </property>
     <addaction name="calcConstructAction"/>
+    <addaction name="createMixMaxTableAction"/>
+    <addaction name="createStressTableAction"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -59,6 +61,16 @@
   <action name="calcConstructAction">
    <property name="text">
     <string>Расчёт конструкции</string>
+   </property>
+  </action>
+  <action name="createMixMaxTableAction">
+   <property name="text">
+    <string>Вывести таблицу экстремумов</string>
+   </property>
+  </action>
+  <action name="createStressTableAction">
+   <property name="text">
+    <string>Вывести таблицу напряжений</string>
    </property>
   </action>
  </widget>

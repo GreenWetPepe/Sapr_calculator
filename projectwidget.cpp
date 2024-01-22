@@ -2,6 +2,9 @@
 #include "ui_projectwidget.h"
 
 #include "Options.cpp"
+#include "minmaxtable.h"
+#include "stresstable.h"
+//#include
 
 #include <QDebug>
 #include <QKeyEvent>
@@ -423,6 +426,20 @@ void ProjectWidget::calcGraph()
         ui->pointCalcWindowButton->show();
     }
     update();
+}
+
+void ProjectWidget::createMixMaxTable()
+{
+    MinMaxTable *minMaxTable = new MinMaxTable();
+    minMaxTable->initTable(workSpace);
+    minMaxTable->show();
+}
+
+void ProjectWidget::createStressTable()
+{
+    StressTable *stressTable = new StressTable();
+    stressTable->initTable(workSpace);
+    stressTable->show();
 }
 
 //void ProjectWidget::on_lineEdit_editingFinished()

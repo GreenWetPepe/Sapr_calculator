@@ -27,6 +27,8 @@ public:
     void saveProject();
 
     void calcProject();
+    void createMixMaxTable();
+    void createStressTable();
 
     void changeLineEditBlockSignal(bool block);
     void changeLineEditEnable(bool isEnable);

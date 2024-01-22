@@ -28,6 +28,10 @@ private slots:
 
     void on_calcConstructAction_triggered();
 
+    void on_createMixMaxTableAction_triggered();
+
+    void on_createStressTableAction_triggered();
+
 private:
     Ui::MainWindow *ui;
 

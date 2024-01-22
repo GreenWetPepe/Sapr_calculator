@@ -36,7 +36,8 @@ public:
     void openProject();
 
     void calcGraph();
-
+    void createMixMaxTable();
+    void createStressTable();
 
 signals:
     void linkSelectedElementsDataWithWidget(std::vector<SaprElement*> selectedElements);
