@@ -1,4 +1,4 @@
-#include "minmaxtable.h"
+#include "include/ui/minmaxtable.h"
 #include "ui_minmaxtable.h"
 
 #include <vector>

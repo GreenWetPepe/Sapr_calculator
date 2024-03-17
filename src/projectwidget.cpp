@@ -1,9 +1,9 @@
-#include "projectwidget.h"
+#include "include/ui/projectwidget.h"
 #include "ui_projectwidget.h"
 
 #include "Options.cpp"
-#include "minmaxtable.h"
-#include "stresstable.h"
+#include "include/ui/minmaxtable.h"
+#include "include/ui/stresstable.h"
 //#include
 
 #include <QDebug>

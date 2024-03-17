@@ -8,40 +8,11 @@ CONFIG += c++17
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-SOURCES += \
-    Options.cpp \
-    main.cpp \
-    calculationproducer.cpp \
-    filehandler.cpp \
-    mainwindow.cpp \
-    menuwidget.cpp \
-    minmaxtable.cpp \
-    projectwidget.cpp \
-    saprelement.cpp \
-    stresstable.cpp \
-    workspace.cpp \
-    workspacewidget.cpp
+SOURCES += src/*.cpp main.cpp
 
-HEADERS += \
-    SaprElementData.h \
-    calculationproducer.h \
-    filehandler.h \
-    mainwindow.h \
-    menuwidget.h \
-    minmaxtable.h \
-    projectwidget.h \
-    saprelement.h \
-    stresstable.h \
-    workspace.h \
-    workspacewidget.h
+HEADERS += include/*.h include/engine/*.h include/ui/*.h
 
-FORMS += \
-    mainwindow.ui \
-    menuwidget.ui \
-    minmaxtable.ui \
-    projectwidget.ui \
-    stresstable.ui \
-    workspacewidget.ui
+FORMS += ui/*.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

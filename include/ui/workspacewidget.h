@@ -2,7 +2,7 @@
 #define WORKSPACEWIDGET_H
 
 #include "projectwidget.h"
-#include "SaprElementData.h"
+#include "include/engine/SaprElementData.h"
 
 #include <QWidget>
 #include <QResizeEvent>

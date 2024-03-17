@@ -1,10 +1,10 @@
 #ifndef PROJECTWIDGET_H
 #define PROJECTWIDGET_H
 
-#include "calculationproducer.h"
-#include "workspace.h"
-#include "filehandler.h"
-#include "SaprElementData.h"
+#include "include/engine/calculationproducer.h"
+#include "include/workspace.h"
+#include "include/engine/filehandler.h"
+#include "include/engine/SaprElementData.h"
 
 #include <QWidget>
 #include <QPainter>
