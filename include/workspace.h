@@ -1,8 +1,8 @@
 #ifndef WORKSPACE_H
 #define WORKSPACE_H
 
-#include "calculationproducer.h"
-#include "saprelement.h"
+#include "engine/calculationproducer.h"
+#include "engine/saprelement.h"
 
 #include <vector>
 #include <QDir>

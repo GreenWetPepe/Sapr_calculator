@@ -1,4 +1,4 @@
-#include "stresstable.h"
+#include "include/ui/stresstable.h"
 #include "ui_stresstable.h"
 
 StressTable::StressTable(QWidget *parent) :

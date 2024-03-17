@@ -1,4 +1,4 @@
-#include "workspacewidget.h"
+#include "include/ui/workspacewidget.h"
 #include "ui_workspacewidget.h"
 
 #include <QDebug>
